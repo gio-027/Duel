@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ka">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>დუელი</title>
+<meta name="theme-color" content="#0E1B3D">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="app" id="app">
+
+  <section id="s-lobby" class="screen">
+    <img class="logo" src="logo.svg" alt="დუელი">
+    <p class="lede">ორი მოთამაშე, ერთი ტრასა, 90 წამი. გაასწარი, აარიდე დაბრკოლებები და მოწინააღმდეგეს სახე გაუფუჭე.</p>
+    <div class="wallet"><b id="ptsTxt">10</b><span>ქულა ანგარიშზე</span><button type="button" class="link" id="garageBtn">ჩემი მანქანა</button></div>
+    <div class="card">
+      <label for="name">შენი სახელი</label>
+      <input id="name" maxlength="14" placeholder="მაგ. გიორგი" autocomplete="off">
+    </div>
+    <div class="invite" id="invite" hidden>მეგობარმა გიწვია ოთახში <b id="inviteCode"></b></div>
+    <div class="card" id="createCard">
+      <h2>ახალი ოთახი</h2>
+      <label for="stake">რამდენ ქულაზე ითამაშებთ?</label>
+      <select id="stake"></select>
+      <button type="button" id="createBtn" class="btn primary">ოთახის შექმნა</button>
+    </div>
+    <div class="card" id="joinCard">
+      <label for="code">ოთახის კოდი</label>
+      <div class="row"><input id="code" maxlength="8" placeholder="კოდი" autocomplete="off" autocapitalize="characters" spellcheck="false"><button type="button" id="joinBtn" class="btn secondary">შეერთება</button></div>
+    </div>
+    <button type="button" id="botBtn" class="btn accent">ვარჯიში კომპიუტერთან</button>
+    <details><summary>წესები</summary><ul>
+      <li>ყველას 10 ქულა აქვს. ეს მხოლოდ თამაშია, ფულს არ ნიშნავს. ოთახის შემქმნელი ირჩევს, რამდენ ქულაზე ითამაშებთ.</li>
+      <li>მოგებული იღებს ამ ქულებს, წაგებული კარგავს. თითო ქულა მანქანის ერთ ნაწილს ღებავს. 22 ქულა ნიშნავს მთლიანად შეღებილ მანქანას.</li>
+      <li>მარცხნივ და მარჯვნივ ხაზს იცვლი, დაბრკოლებას გვერდს უვლი.</li>
+      <li><b>ბუსტი:</b> გაცილებით სწრაფი ხარ, მაგრამ ძრავა ცხელდება. თუ ძალიან გახურდა, ერთი წამით გაჩერდები.</li>
+      <li><b>⚡:</b> აგროვებ და მოწინააღმდეგის წინ დაბრკოლებას აგდებ.</li>
+      <li>ტრასა ყოველ ჯერზე სხვაა: ქალაქი, მთა, სანაპირო, უდაბნო, თოვლი, ტყე, ცა.</li>
+    </ul></details>
+  </section>
+
+  <section id="s-wait" class="screen" hidden>
+    <h2 id="waitTitle">ოთახი შეიქმნა</h2>
+    <div class="codebig" id="codeBig"></div>
+    <p class="chip" id="waitStake"></p>
+    <button type="button" id="copyBtn" class="btn primary">ბმულის გაგზავნა</button>
+    <p class="lede" id="waitLede">მეგობარმა ბმული უნდა გახსნას ან კოდი ჩაწეროს.</p>
+    <button type="button" id="cancelBtn" class="btn ghost">გაუქმება</button>
+  </section>
+
+  <section id="s-game" class="screen game" hidden>
+    <canvas id="cv"></canvas>
+    <div class="hud">
+      <div class="prog"><i class="pdot opp" id="pOpp"></i><i class="pdot me" id="pMe"></i><span class="flag">🏁</span></div>
+      <div class="bars">
+        <div class="heat"><i id="heatBar"></i><span>ძრავა</span></div>
+        <div class="charges" id="charges"></div>
+      </div>
+      <div class="timer" id="timer"></div>
+      <button type="button" class="hbtn" id="leaveBtn" aria-label="გასვლა">✕</button>
+      <button type="button" class="hbtn snd" id="sndBtn" aria-label="ხმა">🔊</button>
+    </div>
+    <div class="big" id="big"></div>
+    <div class="toast" id="toast"></div>
+    <div class="ctrl">
+      <button type="button" class="cb" id="bL" aria-label="მარცხნივ">◀</button>
+      <button type="button" class="cb boost" id="bBoost">ბუსტი</button>
+      <button type="button" class="cb atk" id="bAtk">⚡</button>
+      <button type="button" class="cb" id="bR" aria-label="მარჯვნივ">▶</button>
+    </div>
+  </section>
+
+  <section id="s-result" class="screen result" hidden>
+    <h1 id="resTitle"></h1>
+    <p class="lede" id="resSub"></p>
+    <div class="carbox" id="resCar"></div>
+    <p class="chip" id="resPts"></p>
+    <div class="btns"><button type="button" id="againBtn" class="btn primary">კიდევ ერთხელ</button><button type="button" id="homeBtn" class="btn secondary">მთავარი</button></div>
+  </section>
+
+  <section id="s-garage" class="screen" hidden>
+    <h2>ჩემი მანქანა</h2>
+    <div class="carbox" id="garCar"></div>
+    <p class="chip" id="garTxt"></p>
+    <p class="lede" id="garPrize" hidden></p>
+    <button type="button" id="garBack" class="btn secondary">უკან</button>
+  </section>
+</main>
+<div class="banner" id="banner" hidden></div>
+<script src="game.js"></script>
+</body>
+</html>
