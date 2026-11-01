@@ -17,7 +17,7 @@
 
   <section id="s-lobby" class="screen">
     <img class="logo" src="logo.svg" alt="დუელი">
-    <p class="lede">ორი მოთამაშე, ერთი ტრასა, 90 წამი. გაასწარი, აარიდე დაბრკოლებები და მოწინააღმდეგეს სახე გაუფუჭე.</p>
+    <p class="lede">ორი მოთამაშე გვერდიგვერდ იწყებს. ერთი ტრასა, ერთი წუთი. აიღე ნიტრო, აარიდე დაბრკოლებები და გაასწარი მოწინააღმდეგე.</p>
     <div class="wallet"><b id="ptsTxt">10</b><span>ქულა ანგარიშზე</span><button type="button" class="link" id="garageBtn">ჩემი მანქანა</button></div>
     <div class="card">
       <label for="name">შენი სახელი</label>
@@ -28,6 +28,8 @@
       <h2>ახალი ოთახი</h2>
       <label for="stake">რამდენ ქულაზე ითამაშებთ?</label>
       <select id="stake"></select>
+      <label for="speed">სიჩქარე</label>
+      <select id="speed"><option value="1">საშუალო</option><option value="2">სწრაფი</option><option value="3">სუპერ სწრაფი</option></select>
       <button type="button" id="createBtn" class="btn primary">ოთახის შექმნა</button>
     </div>
     <div class="card" id="joinCard">
@@ -36,11 +38,11 @@
     </div>
     <button type="button" id="botBtn" class="btn accent">ვარჯიში კომპიუტერთან</button>
     <details><summary>წესები</summary><ul>
-      <li>ყველას 10 ქულა აქვს. ეს მხოლოდ თამაშია, ფულს არ ნიშნავს. ოთახის შემქმნელი ირჩევს, რამდენ ქულაზე ითამაშებთ.</li>
-      <li>მოგებული იღებს ამ ქულებს, წაგებული კარგავს. თითო ქულა მანქანის ერთ ნაწილს ღებავს. 22 ქულა ნიშნავს მთლიანად შეღებილ მანქანას.</li>
-      <li>მარცხნივ და მარჯვნივ ხაზს იცვლი, დაბრკოლებას გვერდს უვლი.</li>
-      <li><b>ბუსტი:</b> გაცილებით სწრაფი ხარ, მაგრამ ძრავა ცხელდება. თუ ძალიან გახურდა, ერთი წამით გაჩერდები.</li>
-      <li><b>⚡:</b> აგროვებ და მოწინააღმდეგის წინ დაბრკოლებას აგდებ.</li>
+      <li>ყველას 10 ქულა აქვს. ეს მხოლოდ თამაშია, ფულს არ ნიშნავს. ოთახის შემქმნელი ირჩევს, რამდენ ქულაზე და რა სიჩქარით ითამაშებთ.</li>
+      <li>მოგებული იღებს ამ ქულებს, წაგებული კარგავს. მანქანა 42 000 ქულისგან შედგება: ჯერ მხოლოდ კონტურია და 10 ქულა ერთ პატარა უჯრას ღებავს.</li>
+      <li><b>მართვა:</b> თითი გაუსვი ეკრანზე ან გამოიყენე ისრები / A და D.</li>
+      <li><b>ნიტრო ⚡:</b> აიღე და ძალიან აგაჩქარებს, სანამ არ გაითავდება. ყვითელი ბუსტის ფირფიტაც გაძლევს ნიტროს. დაბრკოლებაში შეჯახება ნიტროს გაგიქრობს.</li>
+      <li><b>🚀:</b> აგროვებ და მოწინააღმდეგის წინ აფეთქებას აგდებ.</li>
       <li>ტრასა ყოველ ჯერზე სხვაა: ქალაქი, მთა, სანაპირო, უდაბნო, თოვლი, ტყე, ცა.</li>
     </ul></details>
   </section>
@@ -59,7 +61,7 @@
     <div class="hud">
       <div class="prog"><i class="pdot opp" id="pOpp"></i><i class="pdot me" id="pMe"></i><span class="flag">🏁</span></div>
       <div class="bars">
-        <div class="heat"><i id="heatBar"></i><span>ძრავა</span></div>
+        <div class="heat"><i id="heatBar"></i><span>ნიტრო</span></div>
         <div class="charges" id="charges"></div>
       </div>
       <div class="timer" id="timer"></div>
@@ -70,8 +72,7 @@
     <div class="toast" id="toast"></div>
     <div class="ctrl">
       <button type="button" class="cb" id="bL" aria-label="მარცხნივ">◀</button>
-      <button type="button" class="cb boost" id="bBoost">ბუსტი</button>
-      <button type="button" class="cb atk" id="bAtk">⚡</button>
+      <button type="button" class="cb atk" id="bAtk">🚀</button>
       <button type="button" class="cb" id="bR" aria-label="მარჯვნივ">▶</button>
     </div>
   </section>

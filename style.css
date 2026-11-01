@@ -36,7 +36,7 @@ details ul{margin:8px 0 0;padding-left:18px;color:var(--muted);display:flex;flex
 .flag{position:absolute;right:-4px;top:-22px;font-size:18px}
 .bars{display:flex;gap:10px;align-items:center;margin-top:10px;margin-right:96px}
 .heat{position:relative;flex:1;height:18px;border-radius:9px;background:#0007;border:2px solid #fff6;overflow:hidden}
-.heat i{display:block;height:100%;width:0;background:linear-gradient(90deg,#3DDC84,#FFD23F,#FF3B5C)}
+.heat i{display:block;height:100%;width:0;background:linear-gradient(90deg,#27C6FF,#7B5CFF,#FF3DB8);box-shadow:0 0 12px #27C6FF}
 .heat span{position:absolute;inset:0;text-align:center;font-size:11px;font-weight:900;line-height:14px;text-shadow:0 1px 2px #000}
 .charges{display:flex;gap:4px;font-size:22px;min-width:54px}
 .timer{position:absolute;right:12px;top:calc(max(8px,env(safe-area-inset-top)) + 46px);font-weight:900;font-size:18px;text-shadow:0 2px 3px #000}
@@ -45,7 +45,7 @@ details ul{margin:8px 0 0;padding-left:18px;color:var(--muted);display:flex;flex
 .big.pop{animation:pop .5s ease-out}
 @keyframes pop{from{transform:scale(2.2);opacity:0}to{transform:scale(1);opacity:1}}
 .toast{position:absolute;left:0;right:0;top:20%;text-align:center;font-weight:900;font-size:22px;text-shadow:0 2px 4px #000;pointer-events:none}
-.ctrl{position:absolute;left:0;right:0;bottom:0;display:grid;grid-template-columns:1fr 1.1fr .8fr 1fr;gap:8px;padding:10px 10px max(14px,env(safe-area-inset-bottom))}
+.ctrl{position:absolute;left:0;right:0;bottom:0;display:grid;grid-template-columns:1fr .9fr 1fr;gap:8px;padding:10px 10px max(14px,env(safe-area-inset-bottom))}
 .cb{height:78px;border-radius:20px;border:0;background:#ffffff55;color:#fff;font:inherit;font-size:30px;font-weight:900;backdrop-filter:blur(4px);touch-action:none;user-select:none;-webkit-user-select:none}
 .cb:active,.cb.on{background:#fff9}
 .cb.boost{background:#FF5A3Caa;font-size:20px}.cb.atk{background:#FFD23Fcc;color:#2A1A00}
@@ -54,3 +54,5 @@ details ul{margin:8px 0 0;padding-left:18px;color:var(--muted);display:flex;flex
 .carbox svg{width:100%;height:auto;display:block}
 .part{transition:fill .3s}.part.new{animation:flash .5s 4}
 @keyframes flash{50%{filter:brightness(1.8)}}
+
+.carcv{width:100%;height:auto;display:block}

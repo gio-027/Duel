@@ -15,7 +15,7 @@ const PORT = parseInt(process.env.PORT, 10) || 3000;
 const MAX_ROOMS = 300;
 const CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 const COUNTDOWN_MS = 3200;
-const MIN_RACE_MS = 30000;      // ამაზე სწრაფად დასრულება შეუძლებელია
+const MIN_RACE_MS = 20000;      // ამაზე სწრაფად დასრულება შეუძლებელია
 const MAX_RACE_MS = 130000;     // ამ დროს მეტი მანძილის მქონე იგებს
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json', '.png': 'image/png' };
 const CSP = ["default-src 'self'", "script-src 'self'", "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com", "font-src https://fonts.gstatic.com", "img-src 'self' data:", "connect-src 'self' ws: wss:", "manifest-src 'self'", "base-uri 'none'", "form-action 'none'", "frame-ancestors 'none'"].join('; ');
@@ -37,7 +37,8 @@ const server = http.createServer((req, res) => {
 const rooms = new Map();
 const cleanName = (s) => (String(s == null ? '' : s).replace(/[\u0000-\u001f\u007f<>]/g, '').trim().slice(0, 14)) || 'მოთამაშე';
 function newCode() { for (;;) { let c = ''; for (let i = 0; i < 4; i++) c += CODE_ALPHABET[crypto.randomInt(CODE_ALPHABET.length)]; if (!rooms.has(c)) return c; } }
-const cleanStake = (v) => { const n = Math.floor(Number(v)); return n >= 1 && n <= 10 ? n : 1; };
+const cleanStake = (v) => { const n = Math.floor(Number(v)); return n >= 1 && n <= 1000 ? n : 1; };
+const cleanSpeed = (v) => { const n = Math.floor(Number(v)); return n >= 1 && n <= 3 ? n : 1; };
 const newToken = () => crypto.randomBytes(16).toString('hex');
 const safeEqual = (a, b) => { const x = Buffer.from(String(a)), y = Buffer.from(String(b)); return x.length === y.length && crypto.timingSafeEqual(x, y); };
 const send = (ws, o) => { if (ws && ws.readyState === 1) ws.send(JSON.stringify(o)); };
@@ -58,7 +59,7 @@ function startRound(room) {
   room.ready = { a: false, b: false };
   room.race = { seed, t0, d: { a: 0, b: 0 }, fin: { a: null, b: null }, done: false, atk: { a: 0, b: 0 }, timer: null };
   room.race.timer = setTimeout(() => endRace(room, null), COUNTDOWN_MS + MAX_RACE_MS);
-  toBoth(room, { t: 'start', seed, round: room.round, names: { a: room.p.a.name, b: room.p.b.name }, stake: room.stake, countdown: COUNTDOWN_MS });
+  toBoth(room, { t: 'start', seed, round: room.round, names: { a: room.p.a.name, b: room.p.b.name }, stake: room.stake, speed: room.speed, countdown: COUNTDOWN_MS });
 }
 function endRace(room, winner) {
   const r = room.race;
@@ -73,9 +74,9 @@ function onCreate(ws, m) {
   leaveCurrent(ws);
   if (rooms.size >= MAX_ROOMS) return send(ws, { t: 'err', code: 'busy' });
   const code = newCode(), token = newToken();
-  rooms.set(code, { code, born: Date.now(), p: { a: { ws, token, name: cleanName(m.name), off: 0 }, b: null }, stake: cleanStake(m.stake), round: 0, race: null, ready: { a: false, b: false } });
+  rooms.set(code, { code, born: Date.now(), p: { a: { ws, token, name: cleanName(m.name), off: 0 }, b: null }, stake: cleanStake(m.stake), speed: cleanSpeed(m.speed), round: 0, race: null, ready: { a: false, b: false } });
   ws.ctx = { code, role: 'a' };
-  send(ws, { t: 'created', code, token, role: 'a', stake: rooms.get(code).stake });
+  send(ws, { t: 'created', code, token, role: 'a', stake: rooms.get(code).stake, speed: rooms.get(code).speed });
 }
 function onJoin(ws, m) {
   leaveCurrent(ws);
@@ -86,7 +87,7 @@ function onJoin(ws, m) {
   const token = newToken();
   room.p.b = { ws, token, name: cleanName(m.name), off: 0 };
   ws.ctx = { code, role: 'b' };
-  send(ws, { t: 'joined', code, token, role: 'b', stake: room.stake });
+  send(ws, { t: 'joined', code, token, role: 'b', stake: room.stake, speed: room.speed });
   startRound(room);
 }
 function onRejoin(ws, m) {
@@ -98,7 +99,7 @@ function onRejoin(ws, m) {
   pl.ws = ws; pl.off = 0; ws.ctx = { code, role };
   send(ws, { t: 'rejoined', code, role });
   const r = room.race;
-  if (r && room.p.b) send(ws, { t: 'start', seed: r.seed, round: room.round, names: { a: room.p.a.name, b: room.p.b.name }, stake: room.stake, countdown: Math.max(0, r.t0 - Date.now()), resume: true });
+  if (r && room.p.b) send(ws, { t: 'start', seed: r.seed, round: room.round, names: { a: room.p.a.name, b: room.p.b.name }, stake: room.stake, speed: room.speed, countdown: Math.max(0, r.t0 - Date.now()), resume: true });
   const o = room.p[opp(role)];
   if (o && o.ws) send(o.ws, { t: 'peer', online: true });
 }
@@ -110,7 +111,7 @@ function onPos(ws, m) {
   const r = x.room.race;
   r.d[x.role] = Math.max(r.d[x.role], Math.min(d, 5000));
   const o = x.room.p[opp(x.role)];
-  if (o && o.ws) send(o.ws, { t: 'opp', d, x: Math.max(0, Math.min(2, l)), b: m.b ? 1 : 0, s: m.s ? 1 : 0 });
+  if (o && o.ws) send(o.ws, { t: 'opp', d, x: Math.max(-1.5, Math.min(1.5, l)), b: m.b ? 1 : 0, s: m.s ? 1 : 0 });
 }
 function onAtk(ws) {
   const x = ctxRoom(ws); if (!x || !x.room.race || x.room.race.done) return;

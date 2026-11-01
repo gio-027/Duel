@@ -20,13 +20,13 @@ function client() {
     let r = await fetch('http://127.0.0.1:' + PORT + '/'); assert.strictEqual(r.status, 200);
     assert.strictEqual((await fetch('http://127.0.0.1:' + PORT + '/server.js')).status, 404);
     assert.strictEqual((await fetch('http://127.0.0.1:' + PORT + '/icon-192.png')).status, 200);
-    const A = await client(); A.send({ t: 'create', name: 'გიო', stake: 3 });
-    const cr = await A.type('created'); assert.strictEqual(cr.stake, 3);
+    const A = await client(); A.send({ t: 'create', name: 'გიო', stake: 3, speed: 3 });
+    const cr = await A.type('created'); assert.strictEqual(cr.stake, 3); assert.strictEqual(cr.speed, 3);
     const B = await client(); B.send({ t: 'join', code: 'ZZZZ' }); assert.strictEqual((await B.type('err')).code, 'no_room');
     B.send({ t: 'join', code: cr.code.toLowerCase(), name: 'ნინო' });
     assert.strictEqual((await B.type('joined')).stake, 3);
     const sa = await A.type('start'), sb = await B.type('start');
-    assert.strictEqual(sa.seed, sb.seed); assert.strictEqual(sa.stake, 3);
+    assert.strictEqual(sa.seed, sb.seed); assert.strictEqual(sa.speed, 3); assert.strictEqual(sa.stake, 3);
     A.send({ t: 'pos', d: 50, x: 1, b: 1 });
     const o = await B.type('opp'); assert.strictEqual(o.d, 50);
     await sleep(3400);
