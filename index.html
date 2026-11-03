@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <title>დუელი</title>
-<meta name="theme-color" content="#0E1B3D">
+<meta name="theme-color" content="#07080D">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -17,7 +17,7 @@
 
   <section id="s-lobby" class="screen">
     <img class="logo" src="logo.svg" alt="დუელი">
-    <p class="lede">ორი მოთამაშე გვერდიგვერდ იწყებს. ერთი ტრასა, ერთი წუთი. აიღე ნიტრო, აარიდე დაბრკოლებები და გაასწარი მოწინააღმდეგე.</p>
+    <p class="lede">ორი მოთამაშე გვერდიგვერდ იწყებს. ერთი ტრასა, მოსახვევები და დრიფტი. აიღე ნიტრო და გაასწარი მოწინააღმდეგე.</p>
     <div class="wallet"><b id="ptsTxt">10</b><span>ქულა ანგარიშზე</span><button type="button" class="link" id="garageBtn">ჩემი მანქანა</button></div>
     <div class="card">
       <label for="name">შენი სახელი</label>
@@ -41,8 +41,8 @@
       <li>ყველას 10 ქულა აქვს. ეს მხოლოდ თამაშია, ფულს არ ნიშნავს. ოთახის შემქმნელი ირჩევს, რამდენ ქულაზე და რა სიჩქარით ითამაშებთ.</li>
       <li>მოგებული იღებს ამ ქულებს, წაგებული კარგავს. მანქანა 42 000 ქულისგან შედგება: ჯერ მხოლოდ კონტურია და 10 ქულა ერთ პატარა უჯრას ღებავს.</li>
       <li><b>მართვა:</b> თითი გაუსვი ეკრანზე ან გამოიყენე ისრები / A და D.</li>
-      <li><b>ნიტრო ⚡:</b> აიღე და ძალიან აგაჩქარებს, სანამ არ გაითავდება. ყვითელი ბუსტის ფირფიტაც გაძლევს ნიტროს. დაბრკოლებაში შეჯახება ნიტროს გაგიქრობს.</li>
-      <li><b>🚀:</b> აგროვებ და მოწინააღმდეგის წინ აფეთქებას აგდებ.</li>
+      <li><b>ნიტრო:</b> აიღე და ძალიან აგაჩქარებს, სანამ არ გაითავდება. ყვითელი ბუსტის ფირფიტაც გაძლევს ნიტროს. დაბრკოლებაში შეჯახება ნიტროს გაგიქრობს.</li>
+      <li><b>დრიფტი:</b> მოსახვევში თითი შიგნით გასვი, მანქანა გაცურდება და ნიტროს აგროვებს.</li><li>ფინიშზე ორივე მანქანა ტრანსფორმერად გადაიქცევა.</li>
       <li>ტრასა ყოველ ჯერზე სხვაა: ქალაქი, მთა, სანაპირო, უდაბნო, თოვლი, ტყე, ცა.</li>
     </ul></details>
   </section>
@@ -62,17 +62,16 @@
       <div class="prog"><i class="pdot opp" id="pOpp"></i><i class="pdot me" id="pMe"></i><span class="flag">🏁</span></div>
       <div class="bars">
         <div class="heat"><i id="heatBar"></i><span>ნიტრო</span></div>
-        <div class="charges" id="charges"></div>
       </div>
       <div class="timer" id="timer"></div>
+      <div class="gap" id="gap"></div>
       <button type="button" class="hbtn" id="leaveBtn" aria-label="გასვლა">✕</button>
-      <button type="button" class="hbtn snd" id="sndBtn" aria-label="ხმა">🔊</button>
+      <button type="button" class="hbtn snd" id="sndBtn" aria-label="ხმა">♪</button>
     </div>
     <div class="big" id="big"></div>
     <div class="toast" id="toast"></div>
     <div class="ctrl">
       <button type="button" class="cb" id="bL" aria-label="მარცხნივ">◀</button>
-      <button type="button" class="cb atk" id="bAtk">🚀</button>
       <button type="button" class="cb" id="bR" aria-label="მარჯვნივ">▶</button>
     </div>
   </section>
