@@ -553,13 +553,14 @@ wheelEl.addEventListener('pointermove', function (e) {
 
 /* მართვა ტელეფონის დახრით */
 function onOrient(e) {
-  /* თამაში გვერდზეა (ტელეფონი ვერტიკალურად): მობილურის წინა-უკანა დახრა არის მანქანის მარცხენა-მარჯვენა მოძრაობა */
-  var portrait = !!(window.matchMedia && matchMedia('(orientation: portrait)').matches);
-  var v = (portrait || (screen.orientation && Math.abs(screen.orientation.angle) === 90)) ? e.beta : e.gamma;
+  /* ტელეფონის მობრუნება საჭესავით (ეკრანის სიბრტყეში): alpha ზომავს ამ ბრუნვას */
+  var v = e.alpha;
   if (typeof v !== 'number') return;
   if (tiltBase === null) tiltBase = v;
-  var sgn = portrait ? -1 : 1;  /* ვერტიკალურ ეკრანზე მიმართულება შებრუნებულია */
-  tiltSteer = clamp(sgn * (v - tiltBase) / 20, -1, 1);
+  var d = v - tiltBase;
+  if (d > 180) d -= 360; if (d < -180) d += 360;
+  if (Math.abs(d) < 6) tiltBase += d * 0.01;            /* ნელი გასწორება, თუ ტელეფონი თავისით ცდება */
+  tiltSteer = clamp(-d / 25, -1, 1);                    /* მარცხნივ ტრიალი → მარცხნივ უხვევს */
 }
 function enableTilt() {
   if (tiltListen) return; tiltListen = true;
