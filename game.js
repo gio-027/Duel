@@ -270,8 +270,13 @@ Car.prototype.step = function (dt, T, gm) {
   this.d = Math.max(0, this.d + this.v * dt);
   if (this.d >= LEN) this.fin = true;
   this.crashT -= dt;
-  if (Math.abs(this.x) > 1.3 && this.crashT <= 0) {           /* გზიდან გადავიდა — კედელს დაეჯახა */
-    this.crashT = 1.2; this.v *= 0.35; this.boostT = 0; this.x = 0.92 * (this.x > 0 ? 1 : -1); this.ev.push('crash');
+  /* კიდე (ტროტუარის საზღვარი): მანქანა არ გადადის შენობებში, მხოლოდ მოსრიალებს და ანელებს; საჭით გამოდის */
+  var WALL = 1.1, sg = this.x > 0 ? 1 : -1;
+  if (Math.abs(this.x) > WALL) {
+    if (this.vx * sg > 0) this.vx = 0;
+    this.x = WALL * sg;
+    this.v *= Math.exp(-0.15 * dt);
+    if (this.crashT <= 0 && Math.abs(this.v) > 4) { this.crashT = 0.25; this.ev.push('scrape'); }
   }
   /* ტროტუარზე არსებულ ობიექტებთან შეჯახება */
   for (i = 0; i < pr.length; i++) {
@@ -293,7 +298,7 @@ Car.prototype.step = function (dt, T, gm) {
     /* ნიტროს აღებისას სიჩქარე ავტომატურად მატულობს; დროებითი აჩქარება იზრდება, მაქსიმუმი 6 წმ */
     this.boostT = 7.5;                                           /* ნიტრო 7.5 წამი; ახალი აღებისას თავიდან იწყება */
     this.v = Math.min(this.v + 6, VMAX * 1.3);
-    this.ev.push(o.k === 'pad' ? 'pad' : 'nit');
+    this.ev.push({ pick: i, k: o.k });
   }
   this.h = headAt(T, this.d);
   this.a = this.h + clamp(this.vx * 0.09, -0.28, 0.28);
@@ -322,8 +327,8 @@ function simRace(lvl, seed, naive) {
   while (!c.fin && t < 600) {
     if (!naive) botDrive(c, T, t);
     c.step(dt, T, 1);
-    if (c.ev.indexOf('crash') >= 0) crashes++;
-    c.ev.forEach(function (e) { if (typeof e === 'object') props++; });
+    if (c.ev.indexOf('scrape') >= 0) crashes++;
+    c.ev.forEach(function (e) { if (typeof e === 'object' && e.prop !== undefined) props++; });
     t += dt;
   }
   return { time: t, crashes: crashes, props: props, L: LEN, theme: T.theme.n };
@@ -463,6 +468,7 @@ function loop(now) {
     $('pMe').style.left = clamp(me.d / LEN, 0, 1) * 100 + '%';
     $('pOpp').style.left = clamp(opp.rd / LEN, 0, 1) * 100 + '%';
     $('revBtn').classList.toggle('on', ctl.rev);
+    $('nitroTxt').textContent = me.boostT > 0 ? 'ნიტრო ' + me.boostT.toFixed(1) + ' წმ' : '';
     Snd.engine(me.v / 10, me.bk > 0.3);
     Snd.music(Math.min(1, 0.5 + 0.25 * clamp(me.d / LEN, 0, 1) + 0.25 * me.bk + (Math.abs(gap) < 0.8 ? 0.1 : 0)));
     if (mode === 'online') {
@@ -491,10 +497,9 @@ function drawAll(dt) {
 }
 function onEv(e) {
   var p = worldAt(track, me.d, me.x, {});
-  if (e === 'crash') { Snd.crash(); shake = 0.9; if (rendererOK) R3D.emit('spark', p.x, p.y, 16); if (navigator.vibrate) try { navigator.vibrate(40); } catch (x) {} flash('გზიდან გავიდა!'); }
-  else if (e === 'nit') { Snd.pick(); flash('ნიტრო!'); }
-  else if (e === 'pad') { Snd.pick(); flash('ბუსტი!'); }
-  else if (typeof e === 'object') { Snd.crash(); shake = 0.7; if (rendererOK) R3D.knock(e.prop); flash('ბოძს დაეჯახე!'); }
+  if (e === 'scrape') { Snd.skid(); shake = 0.3; if (rendererOK) R3D.emit('spark', p.x, p.y, 10); flash('კიდეს ეხები, საჭით გაასწორე'); }
+  else if (e && typeof e === 'object' && e.pick !== undefined) { Snd.pick(); if (rendererOK) R3D.hideItem(e.pick); flash(e.k === 'pad' ? 'ბუსტი!' : 'ნიტრო!'); }
+  else if (e && typeof e === 'object' && e.prop !== undefined) { Snd.crash(); shake = 0.7; if (rendererOK) R3D.knock(e.prop); flash('ბოძს დაეჯახე!'); }
 }
 
 function finishRace(won) {
@@ -553,7 +558,8 @@ function onOrient(e) {
   var v = (portrait || (screen.orientation && Math.abs(screen.orientation.angle) === 90)) ? e.beta : e.gamma;
   if (typeof v !== 'number') return;
   if (tiltBase === null) tiltBase = v;
-  tiltSteer = clamp((v - tiltBase) / 20, -1, 1);
+  var sgn = portrait ? -1 : 1;  /* ვერტიკალურ ეკრანზე მიმართულება შებრუნებულია */
+  tiltSteer = clamp(sgn * (v - tiltBase) / 20, -1, 1);
 }
 function enableTilt() {
   if (tiltListen) return; tiltListen = true;
