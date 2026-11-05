@@ -230,27 +230,30 @@ function worldAt(t, d, xr, o) {
 }
 
 /* ---------- მანქანის ფიზიკა ----------
-   gas — გაზი (ერთხელ დაჭერით მანქანა მიდის პირდაპირ)
+   გაზი ავტომატურია (პედალი არ არის); ნიტროს აღებისას მანქანა ავტომატურად აჩქარდება
    rev — უკუსვლა: სიჩქარეზე მუხრუჭივით მუშაობს და დრიფტში აგებს მანქანას მოსახვევში; გაჩერებულზე უკან მიდის
    steer — მარცხნივ(-1) … მარჯვნივ(+1)
    მოსახვევში მანქანას გარე მხარეს აგდებს ცენტრიდანული ძალა; საჭე ვერ უმკლავდება თუ სიჩქარე დიდია */
 function Car(x0) {
   this.d = 0; this.x = x0 || 0; this.vx = 0; this.v = 0; this.nit = 0; this.bk = 0;
   this.gas = false; this.rev = false; this.nitro = false; this.steer = 0; this.drift = false;
-  this.fin = false; this.ev = []; this.ptr = 0; this.hit = {}; this.crashT = 0; this.h = 0; this.a = 0;
+  this.fin = false; this.ev = []; this.ptr = 0; this.hit = {}; this.crashT = 0; this.h = 0; this.a = 0; this.boostT = 0;
   this.T = null;
 }
 Car.prototype.step = function (dt, T, gm) {
-  var prev = this.d, k = kapAt(T, this.d), boost = this.nitro && this.nit > 0, vmaxNow = VMAX * (gm || 1) * (boost ? 1.3 : 1), acc = 0, ax = Math.abs(this.x), sf, push, it = T.items, i, o, steerAuth, pr = T.props || [];
+  var prev = this.d, k = kapAt(T, this.d), boost, vmaxNow, acc = 0, ax = Math.abs(this.x), sf, push, it = T.items, i, o, steerAuth, pr = T.props || [];
   this.ev.length = 0;
-  this.drift = !!this.rev && this.v > 8 && !this.gas;
-  if (this.gas) acc += ACC * (boost ? 1.8 : 1) * (1 - this.v / vmaxNow);
-  if (this.rev && !this.gas) {
+  this.boostT = Math.max(0, this.boostT - dt);
+  boost = !this.rev && this.boostT > 0;
+  vmaxNow = VMAX * (gm || 1) * (boost ? 1.3 : 1);
+  /* გაზი ავტომატურია: მანქანა ყოველთვის მიდის. უკუსვლა (ტორმუზი) მოსახვევში დრიფტს იწვევს */
+  this.drift = !!this.rev && this.v > 8;
+  if (this.rev) {
     if (this.v > 1) acc -= ACC * BRAKE_X * 0.8;             /* უკუსვლა მუხრუჭივით მუშაობს */
     else acc -= ACC * 0.7;                                   /* გაჩერების შემდეგ უკან მიდის */
     if (this.v < -0.3 * VMAX) acc = 0;
-  } else if (!this.gas) {
-    acc -= 0.05 * this.v;
+  } else {
+    acc += ACC * (boost ? 1.8 : 1) * (1 - this.v / vmaxNow);
   }
   if (ax > 1.12) acc -= 0.26 * ACC * (Math.abs(this.v) / VMAX) * (this.v > 0 ? 1 : -1);  /* გზის გარეთ დრაგი */
   this.v = clamp(this.v + acc * dt, -0.3 * VMAX, vmaxNow);
@@ -265,7 +268,7 @@ Car.prototype.step = function (dt, T, gm) {
   if (this.d >= LEN) this.fin = true;
   this.crashT -= dt;
   if (Math.abs(this.x) > 1.3 && this.crashT <= 0) {           /* გზიდან გადავიდა — კედელს დაეჯახა */
-    this.crashT = 1.2; this.v *= 0.35; this.nit = 0; this.x = 0.92 * (this.x > 0 ? 1 : -1); this.ev.push('crash');
+    this.crashT = 1.2; this.v *= 0.35; this.boostT = 0; this.x = 0.92 * (this.x > 0 ? 1 : -1); this.ev.push('crash');
   }
   /* ტროტუარზე არსებულ ობიექტებთან შეჯახება */
   for (i = 0; i < pr.length; i++) {
@@ -277,15 +280,17 @@ Car.prototype.step = function (dt, T, gm) {
       this.ev.push({ prop: i });
     }
   }
-  if (boost && this.gas && av > 0.5) { this.nit = Math.max(0, this.nit - dt); this.bk = Math.min(1, this.bk + dt * 4); }
+  if (boost && av > 0.5) this.bk = Math.min(1, this.bk + dt * 4);
   else this.bk = Math.max(0, this.bk - dt * 2);
   while (this.ptr < it.length && it[this.ptr].d < prev - 10) this.ptr++;
   for (i = this.ptr; i < it.length && it[i].d <= this.d + 1; i++) {
     o = it[i];
     if (this.hit[i] || this.d < o.d - 0.5 || Math.abs(this.x - o.x) > 0.5) continue;
     this.hit[i] = 1;
-    if (o.k === 'pad') { this.nit = Math.min(NIT_MAX, this.nit + 3); this.ev.push('pad'); }
-    else { this.nit = Math.min(NIT_MAX, this.nit + 4.5); this.ev.push('nit'); }
+    /* ნიტროს აღებისას სიჩქარე ავტომატურად მატულობს; დროებითი აჩქარება იზრდება, მაქსიმუმი 6 წმ */
+    this.boostT = Math.min(6, this.boostT + (o.k === 'pad' ? 5 : 3));
+    this.v = Math.min(this.v + 6, VMAX * 1.3);
+    this.ev.push(o.k === 'pad' ? 'pad' : 'nit');
   }
   this.h = headAt(T, this.d);
   this.a = this.h + clamp(this.vx * 0.09, -0.28, 0.28);
@@ -299,7 +304,7 @@ function botDrive(b, T, el) {
     if (kk > 0.0005) { vs = Math.sqrt(G_LAT / kk) * 0.93; vt = Math.min(vt, Math.sqrt(vs * vs + 2 * ACC * BRAKE_X * j)); }
   }
   vt *= 1 + 0.06 * Math.sin(el * 0.7);
-  b.gas = true; b.rev = false; b.nitro = b.v < vt * 0.9 && b.nit > 2 && b.v > vt * 0.5;
+  b.gas = true; b.rev = false;
   if (b.v > vt) { b.gas = false; b.rev = true; }
   sf = Math.min(1, b.v / (VMAX * 0.3)); push = KP * b.v * b.v * kapAt(T, b.d) / HW;
   comp = sf > 0.05 ? -push / (STEERV * sf) : 0;
@@ -375,7 +380,7 @@ function shareURL() { return location.origin + location.pathname + '?room=' + co
 
 /* ---------- რბოლა ---------- */
 var race = null, me = null, opp = null, bot = null, track = null, raf = 0, lastT = 0, sendT = 0, shake = 0, cv = null, W = 0, H = 0, rendererOK = null;
-var ctl = { gas: false, rev: false, nitro: false };
+var ctl = { rev: false };
 var CTL_KEY = 'duel-ctl', ctlMode = lsGet(CTL_KEY) === 'wheel' ? 'wheel' : 'tilt', tiltSteer = 0, tiltBase = null, tiltListen = false, wheelAng = 0, wheelId = null, wheelLast = 0, hitCD = 0;
 var keysSteer = { l: 0, r: 0 }, touchSteer = 0, touchId = null, touchX0 = 0;
 function newOpp(x) { return { d: 0, rd: 0, x: x, rx: x, b: false, s: false, lastRd: 0, vEst: 0 }; }
@@ -386,10 +391,11 @@ function beginRace(seed, countdownMs) {
   opp = newOpp(0.45);
   bot = (mode === 'bot') ? new Car(0.45) : null;
   race = { state: 'count', t0: performance.now() + countdownMs, lastBeep: 4, doneSent: false, over: false, ft: 0, shown: false, won: false };
-  ctl.gas = mode === 'bot'; ctl.rev = false; ctl.nitro = false; touchSteer = 0; keysSteer.l = keysSteer.r = 0; wheelAng = 0; tiltBase = null; tiltSteer = 0; hitCD = 0;
+  ctl.rev = false; touchSteer = 0; keysSteer.l = keysSteer.r = 0; wheelAng = 0; tiltBase = null; tiltSteer = 0; hitCD = 0;
   shake = 0;
   $('s-game').classList.remove('fin');
   $('s-game').classList.toggle('mode-wheel', ctlMode === 'wheel'); $('s-game').classList.toggle('mode-tilt', ctlMode !== 'wheel');
+  try { if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(function () {}); } catch (e) {}
   show('s-game'); resize();
   if (rendererOK) R3D.setTrack(track, { theme: track.theme, HW: HW, finishD: LEN });
   $('big').className = 'big'; $('big').textContent = ''; $('toast').textContent = ''; $('timer').textContent = ''; $('gap').textContent = '';
@@ -432,8 +438,8 @@ function loop(now) {
     if (ctlMode === 'wheel' && wheelId === null) { wheelAng *= Math.exp(-dt * 5); touchSteer = clamp(wheelAng / (Math.PI * 0.5), -1, 1); $('wheel').style.transform = 'rotate(' + wheelAng + 'rad)'; }
     target = clamp(keysSteer.r - keysSteer.l + (ctlMode === 'wheel' ? touchSteer : tiltSteer), -1, 1);
     me.steer += (target - me.steer) * Math.min(1, dt * 10);
-    me.gas = ctl.gas; me.rev = ctl.rev; me.nitro = ctl.nitro;
-    if (me.fin) { me.gas = false; me.rev = true; me.nitro = false; }
+    me.gas = true; me.rev = ctl.rev; me.nitro = false;
+    if (me.fin) { me.gas = false; me.rev = true; }
     me.step(dt, track, 1);
     me.ev.forEach(onEv);
     if (bot) {
@@ -452,10 +458,7 @@ function loop(now) {
     $('gap').className = 'gap ' + (Math.abs(gap) < 0.12 ? 'eq' : gap > 0 ? 'bad' : 'good');
     $('pMe').style.left = clamp(me.d / LEN, 0, 1) * 100 + '%';
     $('pOpp').style.left = clamp(opp.rd / LEN, 0, 1) * 100 + '%';
-    $('nitBar').style.width = (me.nit / NIT_MAX * 100) + '%';
-    $('gasBtn').classList.toggle('on', ctl.gas);
-    $('revBtn').classList.toggle('on', ctl.rev); $('revBtn2').classList.toggle('on', ctl.rev);
-    if (!ctl.gas && me.v < 1 && el > 3.2) flash('დააჭირე გაზს (მარჯვენა პედალი)');
+    $('revBtn').classList.toggle('on', ctl.rev);
     Snd.engine(me.v / 10, me.bk > 0.3);
     Snd.music(Math.min(1, 0.5 + 0.25 * clamp(me.d / LEN, 0, 1) + 0.25 * me.bk + (Math.abs(gap) < 0.8 ? 0.1 : 0)));
     if (mode === 'online') {
@@ -497,7 +500,7 @@ function finishRace(won) {
   var gained = won ? points - before : before - points, rc = race;
   race.state = 'finale'; race.won = won; race.ft = 0; race.shown = false;
   $('s-game').classList.add('fin');
-  me.gas = false; me.rev = true; ctl.gas = false; ctl.rev = false; ctl.nitro = false;
+  me.gas = false; me.rev = true; ctl.rev = false;
   Snd.engineOff(); Snd.transform();
   $('gap').textContent = ''; $('timer').textContent = '';
   setTimeout(function () {
@@ -522,9 +525,8 @@ function bindHold(id, down, up) {
   el.addEventListener('pointerdown', function (e) { e.preventDefault(); Snd.unlock(); down(); el.classList.add('on'); });
   ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (ev) { el.addEventListener(ev, function () { up(); el.classList.remove('on'); }); });
 }
-bindHold('gasBtn', function () { ctl.gas = true; ctl.rev = false; }, function () {});
-bindHold('revBtn', function () { ctl.rev = true; ctl.gas = false; }, function () { ctl.rev = false; });
-bindHold('revBtn2', function () { ctl.rev = true; ctl.gas = false; }, function () { ctl.rev = false; });
+/* ერთადერთი პედალი (უკუსვლა/ტორმუზი), ორივე მართვის რეჟიმში */
+bindHold('revBtn', function () { ctl.rev = true; }, function () { ctl.rev = false; });
 
 /* მართვა საჭით: ეკრანზე ბორბალს თითით ატრიალებ */
 var wheelEl = $('wheel');
@@ -571,23 +573,18 @@ document.querySelectorAll('.segb').forEach(function (b) { b.onclick = function (
 function markCtl() { document.querySelectorAll('.segb').forEach(function (b) { b.classList.toggle('on', b.dataset.ctl === ctlMode); }); }
 markCtl();
 
-bindHold('nitL', function () { ctl.nitro = true; }, function () { ctl.nitro = false; });
-bindHold('nitR', function () { ctl.nitro = true; }, function () { ctl.nitro = false; });
 window.addEventListener('keydown', function (e) {
   if (!race) return;
   var k = e.key;
   if (k === 'ArrowLeft' || k === 'a' || k === 'A') keysSteer.l = 1;
   else if (k === 'ArrowRight' || k === 'd' || k === 'D') keysSteer.r = 1;
-  else if (k === 'ArrowUp' || k === 'w' || k === 'W') { ctl.gas = true; ctl.rev = false; }
-  else if (k === 'ArrowDown' || k === 's' || k === 'S') { ctl.rev = true; ctl.gas = false; }
-  else if (k === ' ' || k === 'Shift') { ctl.nitro = true; e.preventDefault(); }
+  else if (k === 'ArrowDown' || k === 's' || k === 'S') ctl.rev = true;
 });
 window.addEventListener('keyup', function (e) {
   var k = e.key;
   if (k === 'ArrowLeft' || k === 'a' || k === 'A') keysSteer.l = 0;
   else if (k === 'ArrowRight' || k === 'd' || k === 'D') keysSteer.r = 0;
   else if (k === 'ArrowDown' || k === 's' || k === 'S') ctl.rev = false;
-  else if (k === ' ' || k === 'Shift') ctl.nitro = false;
 });
 $('sndBtn').onclick = function () { $('sndBtn').classList.toggle('off', Snd.toggle()); };
 $('sndBtn').classList.toggle('off', Snd.muted());

@@ -30,7 +30,7 @@
         <button type="button" class="segb" data-ctl="tilt">ტელეფონის დახრა</button>
         <button type="button" class="segb" data-ctl="wheel">საჭე ეკრანზე</button>
       </div>
-      <p class="hint">დახრა: ატრიალებ მობილურს და მანქანა უხვევს; ღილაკები — გაზი და უკუსვლა. საჭე: მარცხნივ ბორბალს თითით ატრიალებ, მარჯვნივ გაზი და უკუსვლა.</p>
+      <p class="hint">დახრა: ატრიალებ მობილურს და მანქანა უხვევს. საჭე: მარცხნივ ბორბალს თითით ატრიალებ. ორივე შემთხვევაში მარჯვნივ მხოლოდ მუხრუჭ-უკუსვლის პედალია. მანქანა თავად მიდის.</p>
     </div>
     <div class="card" id="createCard">
       <h2>ახალი ოთახი</h2>
@@ -48,11 +48,11 @@
     <details><summary>წესები</summary><ul>
       <li>ყველას 10 ქულა აქვს. ეს მხოლოდ თამაშია, ფულს არ ნიშნავს. ოთახის შემქმნელი ირჩევს, რამდენ ქულაზე და რა სიჩქარით ითამაშებთ.</li>
       <li>მოგებული იღებს ფსონს, წაგებული კარგავს. მანქანა 42 000 ქულისგან შედგება: ჯერ მხოლოდ კონტურია და ყოველი 10 ქულა ერთ პატარა უჯრას ღებავს.</li>
-      <li><b>გაზი (მარჯვენა პედალი):</b> ერთხელ დააჭირე და მანქანა პირდაპირ წავა.</li>
-      <li><b>მუხრუჭი (მარცხენა პედალი):</b> სანამ ხელი გიჭირავს, მანქანა ანელებს.</li>
-      <li><b>საჭე:</b> ეკრანზე თითი გადაატარე მარცხნივ ან მარჯვნივ. კომპიუტერზე — ისრები A და D.</li>
+      <li><b>გაზი არ არის:</b> მანქანა თავად აჩქარდება.</li>
+      <li><b>მუხრუჭი / უკუსვლა (მარჯვენა პედალი):</b> სანამ ხელი გიჭირავს, მანქანა ანელებს. მოსახვევში ამ პედალს თუ გამოიყენებ, მანქანა დრიფტით შევა მოსახვევში.</li>
+      <li><b>საჭე:</b> ტელეფონის დახრით ან ეკრანზე ბორბლით. კომპიუტერზე — ისრები A და D.</li>
       <li><b>მოსახვევები:</b> ყველა მოსახვევი სხვადასხვა სირთულისაა. თუ მოსახვევში სიჩქარით შეხვალ, მანქანა გზიდან გადავა და დაეჯახება — ამიტომ წინასწარ აანელე.</li>
-      <li><b>ნიტრო:</b> მარცხენა ან მარჯვენა ღილაკი აგაჩქარებს, სანამ არ გაითავდება. ყვითელი ფირფიტებიც გაძლევს ნიტროს.</li>
+      <li><b>ნიტრო:</b> ნიტროს (ან ბუსტის) აღებისას მანქანა ავტომატურად აჩქარდება, რამდენიმე წამით.</li>
       <li>ფინიშზე ორივე მანქანა ტრანსფორმერად გადაიქცევა.</li>
       <li>ტრასა ყოველ ჯერზე სხვაა: ძველი თბილისი, რუსთაველის გამზირი, მტკვრის სანაპირო, საბურთალო წვიმაში.</li>
     </ul></details>
@@ -72,18 +72,15 @@
     <div class="hud">
       <div class="prog"><i class="pdot opp" id="pOpp"></i><i class="pdot me" id="pMe"></i><span class="flag">🏁</span></div>
       <div class="spdbox"><b id="spd">0</b><span>კმ/სთ</span></div>
-      <div class="posbox"><b id="posTxt"></b><div class="bar"><i id="nitBar"></i></div><span>ნიტრო</span></div>
+      <div class="posbox"><b id="posTxt"></b></div>
       <div class="timer" id="timer"></div>
       <div class="gap" id="gap"></div>
       <button type="button" class="hbtn" id="leaveBtn" aria-label="გასვლა">✕</button>
       <button type="button" class="hbtn snd" id="sndBtn" aria-label="ხმა">♪</button>
     </div>
-    <button type="button" class="nit nitL" id="nitL" aria-label="ნიტრო">ნიტრო</button>
-    <button type="button" class="nit nitR" id="nitR" aria-label="ნიტრო">ნიტრო</button>
-    <button type="button" class="ped rev" id="revBtn" aria-label="უკუსვლა"><i></i><i></i></button>
+    <button type="button" class="ped rev" id="revBtn" aria-label="მუხრუჭი და უკუსვლა"><i></i><i></i></button>
     <div class="wheel" id="wheel" aria-label="საჭე"><b></b><b></b><span></span></div>
-    <button type="button" class="ped rev rev2" id="revBtn2" aria-label="უკუსვლა"><i></i><i></i></button>
-    <button type="button" class="ped gas" id="gasBtn" aria-label="გაზი"><i></i><i></i></button>
+    <div class="rot"><span>გადაატრიალე ტელეფონი ჰორიზონტალურად</span></div>
     <div class="big" id="big"></div>
     <div class="toast" id="toast"></div>
   </section>
