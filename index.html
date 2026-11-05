@@ -17,7 +17,7 @@
 
   <section id="s-lobby" class="screen">
     <img class="logo" src="logo.svg" alt="დუელი">
-    <p class="lede">ორი მოთამაშე გვერდიგვერდ იწყებს. ერთი ტრასა, მოსახვევები და დრიფტი. აიღე ნიტრო და გაასწარი მოწინააღმდეგე.</p>
+    <p class="lede">ორი მოთამაშე გვერდიგვერდ იწყებს თბილისის ქუჩებში. აანელე მოსახვევში და გაასწარი მოწინააღმდეგე.</p>
     <div class="wallet"><b id="ptsTxt">10</b><span>ქულა ანგარიშზე</span><button type="button" class="link" id="garageBtn">ჩემი მანქანა</button></div>
     <div class="card">
       <label for="name">შენი სახელი</label>
@@ -39,11 +39,14 @@
     <button type="button" id="botBtn" class="btn accent">ვარჯიში კომპიუტერთან</button>
     <details><summary>წესები</summary><ul>
       <li>ყველას 10 ქულა აქვს. ეს მხოლოდ თამაშია, ფულს არ ნიშნავს. ოთახის შემქმნელი ირჩევს, რამდენ ქულაზე და რა სიჩქარით ითამაშებთ.</li>
-      <li>მოგებული იღებს ამ ქულებს, წაგებული კარგავს. მანქანა 42 000 ქულისგან შედგება: ჯერ მხოლოდ კონტურია და 10 ქულა ერთ პატარა უჯრას ღებავს.</li>
-      <li><b>მართვა:</b> თითი გაუსვი ეკრანზე ან გამოიყენე ისრები / A და D.</li>
-      <li><b>ნიტრო:</b> აიღე და ძალიან აგაჩქარებს, სანამ არ გაითავდება. ყვითელი ბუსტის ფირფიტაც გაძლევს ნიტროს. დაბრკოლებაში შეჯახება ნიტროს გაგიქრობს.</li>
-      <li><b>დრიფტი:</b> მოსახვევში თითი შიგნით გასვი, მანქანა გაცურდება და ნიტროს აგროვებს.</li><li>ფინიშზე ორივე მანქანა ტრანსფორმერად გადაიქცევა.</li>
-      <li>ტრასა ყოველ ჯერზე სხვაა: ქალაქი, მთა, სანაპირო, უდაბნო, თოვლი, ტყე, ცა.</li>
+      <li>მოგებული იღებს ფსონს, წაგებული კარგავს. მანქანა 42 000 ქულისგან შედგება: ჯერ მხოლოდ კონტურია და ყოველი 10 ქულა ერთ პატარა უჯრას ღებავს.</li>
+      <li><b>გაზი (მარჯვენა პედალი):</b> ერთხელ დააჭირე და მანქანა პირდაპირ წავა.</li>
+      <li><b>მუხრუჭი (მარცხენა პედალი):</b> სანამ ხელი გიჭირავს, მანქანა ანელებს.</li>
+      <li><b>საჭე:</b> ეკრანზე თითი გადაატარე მარცხნივ ან მარჯვნივ. კომპიუტერზე — ისრები A და D.</li>
+      <li><b>მოსახვევები:</b> ყველა მოსახვევი სხვადასხვა სირთულისაა. თუ მოსახვევში სიჩქარით შეხვალ, მანქანა გზიდან გადავა და დაეჯახება — ამიტომ წინასწარ აანელე.</li>
+      <li><b>ნიტრო:</b> მარცხენა ან მარჯვენა ღილაკი აგაჩქარებს, სანამ არ გაითავდება. ყვითელი ფირფიტებიც გაძლევს ნიტროს.</li>
+      <li>ფინიშზე ორივე მანქანა ტრანსფორმერად გადაიქცევა.</li>
+      <li>ტრასა ყოველ ჯერზე სხვაა: ძველი თბილისი, რუსთაველის გამზირი, მტკვრის სანაპირო, საბურთალო წვიმაში.</li>
     </ul></details>
   </section>
 
@@ -60,20 +63,19 @@
     <canvas id="cv"></canvas>
     <div class="hud">
       <div class="prog"><i class="pdot opp" id="pOpp"></i><i class="pdot me" id="pMe"></i><span class="flag">🏁</span></div>
-      <div class="bars">
-        <div class="heat"><i id="heatBar"></i><span>ნიტრო</span></div>
-      </div>
+      <div class="spdbox"><b id="spd">0</b><span>კმ/სთ</span></div>
+      <div class="posbox"><b id="posTxt"></b><div class="bar"><i id="nitBar"></i></div><span>ნიტრო</span></div>
       <div class="timer" id="timer"></div>
       <div class="gap" id="gap"></div>
       <button type="button" class="hbtn" id="leaveBtn" aria-label="გასვლა">✕</button>
       <button type="button" class="hbtn snd" id="sndBtn" aria-label="ხმა">♪</button>
     </div>
+    <button type="button" class="nit nitL" id="nitL" aria-label="ნიტრო">ნიტრო</button>
+    <button type="button" class="nit nitR" id="nitR" aria-label="ნიტრო">ნიტრო</button>
+    <button type="button" class="ped brk" id="brkBtn" aria-label="მუხრუჭი"><i></i><i></i></button>
+    <button type="button" class="ped gas" id="gasBtn" aria-label="გაზი"><i></i><i></i></button>
     <div class="big" id="big"></div>
     <div class="toast" id="toast"></div>
-    <div class="ctrl">
-      <button type="button" class="cb" id="bL" aria-label="მარცხნივ">◀</button>
-      <button type="button" class="cb" id="bR" aria-label="მარჯვნივ">▶</button>
-    </div>
   </section>
 
   <section id="s-result" class="screen result" hidden>
@@ -93,6 +95,7 @@
   </section>
 </main>
 <div class="banner" id="banner" hidden></div>
+<script src="render3d.js"></script>
 <script src="game.js"></script>
 </body>
 </html>

@@ -5,7 +5,7 @@ const path = require('path');
 const crypto = require('crypto');
 const { WebSocketServer } = require('ws');
 
-const STATIC_FILES = ['index.html', 'style.css', 'game.js', 'manifest.webmanifest', 'icon.svg', 'logo.svg', 'icon-192.png', 'icon-512.png'];
+const STATIC_FILES = ['index.html', 'style.css', 'game.js', 'manifest.webmanifest', 'icon.svg', 'logo.svg', 'icon-192.png', 'icon-512.png', 'render3d.js'];
 const missing = STATIC_FILES.filter((n) => !fs.existsSync(path.join(__dirname, n)));
 if (missing.length) {
   console.error('Missing files: ' + missing.join(', ') + '. Upload ALL files to the repository root.');
@@ -15,8 +15,8 @@ const PORT = parseInt(process.env.PORT, 10) || 3000;
 const MAX_ROOMS = 300;
 const CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 const COUNTDOWN_MS = 3200;
-const MIN_RACE_MS = 20000;      // ამაზე სწრაფად დასრულება შეუძლებელია
-const MAX_RACE_MS = 130000;     // ამ დროს მეტი მანძილის მქონე იგებს
+const MIN_RACE_MS = 40000;      // ამაზე სწრაფად დასრულება შეუძლებელია
+const MAX_RACE_MS = 200000;     // ამ დროს მეტი მანძილის მქონე იგებს
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json', '.png': 'image/png' };
 const CSP = ["default-src 'self'", "script-src 'self'", "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com", "font-src https://fonts.gstatic.com", "img-src 'self' data:", "connect-src 'self' ws: wss:", "manifest-src 'self'", "base-uri 'none'", "form-action 'none'", "frame-ancestors 'none'"].join('; ');
 
@@ -109,9 +109,9 @@ function onPos(ws, m) {
   const d = Number(m.d), l = Number(m.x);
   if (!isFinite(d) || !isFinite(l)) return;
   const r = x.room.race;
-  r.d[x.role] = Math.max(r.d[x.role], Math.min(d, 5000));
+  r.d[x.role] = Math.max(r.d[x.role], Math.min(d, 9000));
   const o = x.room.p[opp(x.role)];
-  if (o && o.ws) send(o.ws, { t: 'opp', d, x: Math.max(-1.5, Math.min(1.5, l)), b: m.b ? 1 : 0, s: m.s ? 1 : 0 });
+  if (o && o.ws) send(o.ws, { t: 'opp', d, x: Math.max(-1.6, Math.min(1.6, l)), b: m.b ? 1 : 0, s: m.s ? 1 : 0 });
 }
 function onAtk(ws) {
   const x = ctxRoom(ws); if (!x || !x.room.race || x.room.race.done) return;
