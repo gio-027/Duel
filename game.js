@@ -249,7 +249,8 @@ Car.prototype.step = function (dt, T, gm) {
   boost = !this.rev && this.boostT > 0;
   vmaxNow = VMAX * (gm || 1) * (boost ? 1.3 : 1);
   /* გაზი ავტომატურია: მანქანა ყოველთვის მიდის. უკუსვლა (ტორმუზი) მოსახვევში დრიფტს იწვევს */
-  this.drift = !!this.rev && this.v > 8;
+  /* დრიფტი: უკუსვლით მოსახვევში, ან მკვეთრ მოსახვევში სიჩქარით შესვლისას */
+  this.drift = (!!this.rev && this.v > 8) || (Math.abs(k) > 0.008 && this.v > 0.6 * VMAX);
   if (this.rev) {
     if (this.v > 1) acc -= ACC * BRAKE_X * 0.8;             /* უკუსვლა მუხრუჭივით მუშაობს */
     else acc -= ACC * 0.7;                                   /* გაჩერების შემდეგ უკან მიდის */
@@ -262,7 +263,7 @@ Car.prototype.step = function (dt, T, gm) {
   var av = Math.abs(this.v);
   sf = Math.min(1, av / (VMAX * 0.3));
   push = KP * this.v * this.v * k / HW;                       /* ცენტრიდანული ძალა მოსახვევში */
-  if (this.drift) push *= 0.4;                                  /* დრიფტი: მანქანა მოსახვევში შედის, არა გარეთ */
+  if (this.rev && this.drift) push *= 0.4;                                  /* დრიფტი: მანქანა მოსახვევში შედის, არა გარეთ */
   steerAuth = this.drift ? 1.3 : 1;
   this.vx = push + this.steer * STEERV * sf * steerAuth;
   this.x += this.vx * dt;
@@ -290,7 +291,7 @@ Car.prototype.step = function (dt, T, gm) {
     if (this.hit[i] || this.d < o.d - 0.5 || Math.abs(this.x - o.x) > 0.5) continue;
     this.hit[i] = 1;
     /* ნიტროს აღებისას სიჩქარე ავტომატურად მატულობს; დროებითი აჩქარება იზრდება, მაქსიმუმი 6 წმ */
-    this.boostT = Math.min(6, this.boostT + (o.k === 'pad' ? 5 : 3));
+    this.boostT = 7.5;                                           /* ნიტრო 7.5 წამი; ახალი აღებისას თავიდან იწყება */
     this.v = Math.min(this.v + 6, VMAX * 1.3);
     this.ev.push(o.k === 'pad' ? 'pad' : 'nit');
   }
@@ -419,7 +420,7 @@ function setBig(t, cls) { var b = $('big'); b.textContent = t; b.className = 'bi
 function rubber() { return 1 + clamp((me.d - bot.d) / 150, -0.05, 0.07); }
 function poseOf(c, dt) {
   var p = worldAt(track, c.d, c.x, {});
-  return { x: p.x, y: p.y, h: p.h, a: c.a, v: c.v, bk: c.bk, lean: c.steer * clamp(c.v / VMAX, 0, 1) };
+  return { x: p.x, y: p.y, h: p.h, a: c.a, v: c.v, bk: c.bk, dr: c.drift ? 1 : 0, lean: c.steer * clamp(c.v / VMAX, 0, 1) };
 }
 function oppPose() {
   var p = worldAt(track, opp.rd, opp.rx, {});
@@ -443,6 +444,7 @@ function loop(now) {
     me.gas = true; me.rev = ctl.rev; me.nitro = false;
     if (me.fin) { me.gas = false; me.rev = true; }
     me.step(dt, track, 1);
+    if (me.drift) { race.skidT = (race.skidT || 0) - dt; if (race.skidT <= 0) { Snd.skid(); race.skidT = 0.3; } }
     me.ev.forEach(onEv);
     if (bot) {
       botDrive(bot, track, el); bot.step(dt, track, rubber()); bot.ev.length = 0;
@@ -546,7 +548,9 @@ wheelEl.addEventListener('pointermove', function (e) {
 
 /* მართვა ტელეფონის დახრით */
 function onOrient(e) {
-  var v = (screen.orientation && Math.abs(screen.orientation.angle) === 90) ? e.beta : e.gamma;
+  /* თამაში გვერდზეა (ტელეფონი ვერტიკალურად): მობილურის წინა-უკანა დახრა არის მანქანის მარცხენა-მარჯვენა მოძრაობა */
+  var portrait = !!(window.matchMedia && matchMedia('(orientation: portrait)').matches);
+  var v = (portrait || (screen.orientation && Math.abs(screen.orientation.angle) === 90)) ? e.beta : e.gamma;
   if (typeof v !== 'number') return;
   if (tiltBase === null) tiltBase = v;
   tiltSteer = clamp((v - tiltBase) / 20, -1, 1);
