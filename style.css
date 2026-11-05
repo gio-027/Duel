@@ -84,3 +84,23 @@ details ul{margin:8px 0 0;padding-left:18px;color:var(--muted);display:flex;flex
 .nit.on{background:#1fb6ffaa;box-shadow:0 0 18px #1fb6ff}
 .nitL{left:12px}.nitR{right:12px}
 .game.fin .ped,.game.fin .nit,.game.fin .gap{display:none}
+/* მართვის არჩევა და საჭე */
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.segb{min-height:48px;border-radius:14px;border:2px solid #3A3F52;background:#12141C;color:#ECECF1;font:inherit;font-weight:700;font-size:15px;cursor:pointer;padding:6px}
+.segb.on{border-color:var(--yellow);background:#2A2412;color:#FFD84A}
+.hint{color:var(--muted);font-size:13px;line-height:1.4}
+.ped.rev{background:#0007}
+.ped.rev.on{background:#B3202Aaa}
+.ped.rev i{transform:rotate(45deg)}
+.game .wheel{position:absolute;left:14px;bottom:max(18px,env(safe-area-inset-bottom));width:150px;height:150px;border-radius:50%;border:8px solid #111;background:radial-gradient(circle,#1d2029 0,#0b0c10 70%);box-shadow:0 0 0 2px #ffffff44,0 8px 24px #000a;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+.game .wheel b{position:absolute;left:50%;top:50%;width:112px;height:14px;margin:-7px 0 0 -56px;background:#2a2d36;border-radius:7px;border:1px solid #ffffff22}
+.game .wheel b:nth-child(2){transform:rotate(90deg)}
+.game .wheel span{position:absolute;left:50%;top:50%;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;background:#D4AF37;box-shadow:0 0 8px #000}
+.game .wheel span{position:absolute}
+.game .wheel:before{content:"";position:absolute;left:50%;top:-8px;width:10px;height:14px;margin-left:-5px;background:#FFD84A;border-radius:3px}
+.game.mode-tilt .wheel,.game.mode-tilt .rev2{display:none}
+.game.mode-wheel #revBtn{display:none}
+.game.mode-wheel .rev2{display:flex;right:12px;bottom:calc(max(14px,env(safe-area-inset-bottom)) + 170px);height:110px}
+.game.mode-wheel .gas{height:150px}
+.ped.rev{left:12px;right:auto}
+.ped.rev.rev2{left:auto;right:12px}

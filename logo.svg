@@ -1,1 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 120"><g transform="translate(6 12) scale(.19)"><defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3A0C14"/><stop offset="1" stop-color="#07080D"/></linearGradient><linearGradient id="gd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F0D27A"/><stop offset="1" stop-color="#A67C1C"/></linearGradient><linearGradient id="rd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E23A4A"/><stop offset="1" stop-color="#6E0F1A"/></linearGradient><linearGradient id="sv" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E4E8F0"/><stop offset="1" stop-color="#6D7588"/></linearGradient></defs><rect width="512" height="512" rx="112" fill="url(#bg)"/><path d="M226 150h60l150 362H76z" fill="#161923"/><path d="M256 150v362" stroke="#8D96AE" stroke-width="6" stroke-dasharray="26 22"/><rect x="40" y="40" width="432" height="432" rx="84" fill="none" stroke="url(#gd)" stroke-width="8"/><g><rect x="96" y="276" width="140" height="120" rx="34" fill="url(#rd)"/><rect x="116" y="248" width="100" height="52" rx="20" fill="#0C0F1A"/><rect x="108" y="338" width="38" height="14" rx="6" fill="#FF3B3B"/><rect x="186" y="338" width="38" height="14" rx="6" fill="#FF3B3B"/><rect x="86" y="368" width="26" height="46" rx="8" fill="#05060A"/><rect x="220" y="368" width="26" height="46" rx="8" fill="#05060A"/></g><g><rect x="276" y="276" width="140" height="120" rx="34" fill="url(#sv)"/><rect x="296" y="248" width="100" height="52" rx="20" fill="#0C0F1A"/><rect x="288" y="338" width="38" height="14" rx="6" fill="#FF3B3B"/><rect x="366" y="338" width="38" height="14" rx="6" fill="#FF3B3B"/><rect x="266" y="368" width="26" height="46" rx="8" fill="#05060A"/><rect x="400" y="368" width="26" height="46" rx="8" fill="#05060A"/></g></g><defs><linearGradient id="t" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F6DE8E"/><stop offset="1" stop-color="#A67C1C"/></linearGradient></defs><text x="124" y="82" font-family="'Noto Sans Georgian','Sylfaen',sans-serif" font-weight="900" font-size="68" fill="url(#t)" stroke="#000" stroke-width="2" paint-order="stroke">დუელი</text><path d="M126 98h226" stroke="#B3202A" stroke-width="5" stroke-linecap="round"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 240" role="img" aria-label="დუელი">
+  <defs>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FF5A3C"/><stop offset="0.5" stop-color="#D2121C"/><stop offset="1" stop-color="#6E0A12"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFE9A0"/><stop offset="1" stop-color="#C8961E"/>
+    </linearGradient>
+  </defs>
+  <!-- სპორტული მანქანის სილუეტი (ორიგინალური ფორმა) -->
+  <path d="M52 170 L92 138 Q128 118 196 114 L246 94 Q282 84 326 92 L392 110 Q446 118 470 146 L548 152 Q566 156 566 172 L566 180 L52 180 Z" fill="url(#body)" stroke="#2a0a0e" stroke-width="3"/>
+  <path d="M236 98 Q284 88 326 96 L372 108 L300 112 Q262 114 230 112 Z" fill="#0b1628" opacity="0.85"/>
+  <path d="M96 150 L540 156" stroke="#FFD84A" stroke-width="3" opacity="0.8"/>
+  <circle cx="150" cy="182" r="26" fill="#111" stroke="#c9ced8" stroke-width="6"/>
+  <circle cx="460" cy="182" r="26" fill="#111" stroke="#c9ced8" stroke-width="6"/>
+  <text x="300" y="82" text-anchor="middle" font-family="'Noto Sans Georgian', sans-serif" font-weight="900" font-size="86" fill="url(#gold)" stroke="#1a1200" stroke-width="4" paint-order="stroke">დუელი</text>
+</svg>

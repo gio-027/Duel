@@ -24,6 +24,14 @@
       <input id="name" maxlength="14" placeholder="მაგ. გიორგი" autocomplete="off">
     </div>
     <div class="invite" id="invite" hidden>მეგობარმა გიწვია ოთახში <b id="inviteCode"></b></div>
+    <div class="card" id="ctlCard">
+      <label>მართვის სისტემა</label>
+      <div class="seg">
+        <button type="button" class="segb" data-ctl="tilt">ტელეფონის დახრა</button>
+        <button type="button" class="segb" data-ctl="wheel">საჭე ეკრანზე</button>
+      </div>
+      <p class="hint">დახრა: ატრიალებ მობილურს და მანქანა უხვევს; ღილაკები — გაზი და უკუსვლა. საჭე: მარცხნივ ბორბალს თითით ატრიალებ, მარჯვნივ გაზი და უკუსვლა.</p>
+    </div>
     <div class="card" id="createCard">
       <h2>ახალი ოთახი</h2>
       <label for="stake">რამდენ ქულაზე ითამაშებთ?</label>
@@ -72,7 +80,9 @@
     </div>
     <button type="button" class="nit nitL" id="nitL" aria-label="ნიტრო">ნიტრო</button>
     <button type="button" class="nit nitR" id="nitR" aria-label="ნიტრო">ნიტრო</button>
-    <button type="button" class="ped brk" id="brkBtn" aria-label="მუხრუჭი"><i></i><i></i></button>
+    <button type="button" class="ped rev" id="revBtn" aria-label="უკუსვლა"><i></i><i></i></button>
+    <div class="wheel" id="wheel" aria-label="საჭე"><b></b><b></b><span></span></div>
+    <button type="button" class="ped rev rev2" id="revBtn2" aria-label="უკუსვლა"><i></i><i></i></button>
     <button type="button" class="ped gas" id="gasBtn" aria-label="გაზი"><i></i><i></i></button>
     <div class="big" id="big"></div>
     <div class="toast" id="toast"></div>
