@@ -101,5 +101,6 @@ details ul{margin:8px 0 0;padding-left:18px;color:var(--muted);display:flex;flex
 .game.mode-tilt .wheel{display:none}
 .ped.rev{right:12px;left:auto}
 /* ტელეფონი ვერტიკალურადაა: სურათი ჰორიზონტალურად მოითხოვს გადატრიალებას */
-.game .rot{display:none;position:absolute;inset:0;z-index:50;background:#07080Ff5;color:#FFD84A;align-items:center;justify-content:center;text-align:center;padding:24px;font-weight:900;font-size:22px;line-height:1.4}
-@media (orientation: portrait){.game .rot{display:flex}}
+.game .rot{display:none!important;position:absolute;inset:0;z-index:50;background:#07080Ff5;color:#FFD84A;align-items:center;justify-content:center;text-align:center;padding:24px;font-weight:900;font-size:22px;line-height:1.4}
+/* ტელეფონი ვერტიკალურადაა: თამაში 90°-ით იბრუნება, რომ ჰორიზონტალურად გამოჩნდეს (მუშაობს iPhone-ზეც, სადაც ეკრანის ჩაკეტვა არ მუშაობს) */
+@media (orientation: portrait){.game{inset:auto;left:0;top:100vh;width:100vh;height:100vw;transform:rotate(-90deg);transform-origin:0 0}}

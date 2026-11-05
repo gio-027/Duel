@@ -115,7 +115,7 @@ function showCar(box, pts, newCount) {
 /* ---------- ხმა ---------- */
 var Snd = (function () {
   var ctx = null, muted = lsGet(MUTE_KEY) === '1', eng = null, engG = null, mus = null, musK = 0.5;
-  var ROOTS = [38, 31, 36, 33], CH = [[0, 3, 7, 10], [0, 4, 7, 10], [0, 4, 7, 10], [0, 4, 7, 10]], BASSP = [0, 3, 4, 6, 8, 10, 11, 14], BASSN = [0, 0, 7, 0, 12, 7, 0, 10], KICK = [0, 3, 6, 10, 13], MEL = [0, -1, 3, -1, 5, 3, -1, 7, -1, 10, 7, -1, 5, 3, 0, -1];
+  var ROOTS = [38, 34, 41, 36], CH = [[0, 3, 7], [0, 4, 7], [0, 4, 7], [0, 4, 7]];
   function mtof(m) { return 440 * Math.pow(2, (m - 69) / 12); }
   function nz(t, dur, vol, type, freq, q) {
     var c = ctx, s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain(); s.buffer = mus.noise; s.loop = true; f.type = type; f.frequency.value = freq; if (q) f.Q.value = q;
@@ -129,16 +129,18 @@ var Snd = (function () {
   function sched() {
     if (!mus || !ctx) return;
     while (mus.next < ctx.currentTime + 0.25) {
-      var i = mus.step, t = mus.next, bpm = 146 + musK * 22, sp = 60 / bpm / 4, bar = Math.floor(i / 16) % 4, st = i % 16, root = ROOTS[bar], ch = CH[bar], k;
-      if (KICK.indexOf(st) >= 0) { osc(t, 0.2, 140, 'sine', 0.95, 0, 40); nz(t, 0.025, 0.25, 'lowpass', 900); }
-      if (st === 4 || st === 12) { nz(t, 0.17, 0.42, 'bandpass', 1900, 0.7); osc(t, 0.1, 210, 'triangle', 0.2, 0, 120); }
-      if (st === 7 || st === 15) nz(t, 0.05, 0.12, 'bandpass', 2200, 0.8);
-      nz(t, st === 14 ? 0.16 : 0.035, st % 2 ? 0.1 : 0.17, 'highpass', 7500);
-      if (musK > 0.4 && st % 2 === 0) nz(t, 0.05, 0.07, 'bandpass', 1300, 3);
-      k = BASSP.indexOf(st); if (k >= 0) osc(t, sp * 1.8, mtof(root + 12 + BASSN[k]), 'sawtooth', 0.36, 700 + musK * 700);
-      if (st === 2 || st === 5 || st === 10 || st === 13) ch.forEach(function (iv) { osc(t, sp * 1.7, mtof(root + 24 + iv), 'sawtooth', 0.07, 2600, 0, 0.012); osc(t, sp * 1.7, mtof(root + 24 + iv) * 1.006, 'square', 0.04, 2200, 0, 0.012); });
-      if (musK > 0.55 && MEL[st] >= 0) osc(t, sp * 1.8, mtof(root + 36 + MEL[st]), 'square', 0.085, 3200, mtof(root + 36 + MEL[st]) * 0.99, 0.015);
-      if (st === 15 && bar === 3) osc(t, sp * 2, mtof(root + 48), 'sawtooth', 0.07, 3500, mtof(root + 60));
+      var i = mus.step, t = mus.next, bpm = 118 + musK * 14, sp = 60 / bpm / 4, bar = Math.floor(i / 16) % 4, st = i % 16, root = ROOTS[bar], ch = CH[bar], n;
+      /* ყოველი მეოთხე დარტყმა (four-on-the-floor) და რბილი სნერი */
+      if (st % 4 === 0) osc(t, 0.22, 110, 'sine', 0.7, 0, 45);
+      if (st === 4 || st === 12) nz(t, 0.12, 0.2, 'bandpass', 1400, 1.2);
+      if (st % 2 === 1) nz(t, 0.03, 0.09, 'highpass', 8000);
+      /* ბასი: რიტმული ნოტები ფუძის ტონზე */
+      if (st === 0 || st === 3 || st === 8 || st === 11) osc(t, sp * 2.2, mtof(root + 12), 'sawtooth', 0.22, 480 + musK * 300);
+      /* არპეჯიო: 16-ე ნოტები აკორდის ტონებზე, ოქტავით მაღლა */
+      n = ch[st % ch.length] + (st >= 8 ? 12 : 0);
+      osc(t, sp * 0.9, mtof(root + 24 + n), 'sawtooth', 0.075, 1800 + musK * 900, 0, 0.005);
+      /* პადი: აკორდი ყოველი ტაქტის დასაწყისში */
+      if (st === 0) ch.forEach(function (iv) { osc(t, sp * 15, mtof(root + 36 + iv), 'triangle', 0.035, 1200, 0, 0.3); });
       mus.next += sp; mus.step = (i + 1) % 64;
     }
   }
