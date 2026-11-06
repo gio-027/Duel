@@ -431,8 +431,11 @@ function oppPose() {
   var p = worldAt(track, opp.rd, opp.rx, {});
   return { x: p.x, y: p.y, h: p.h, a: p.h, v: opp.vEst, bk: opp.b ? 0.6 : 0, lean: 0 };
 }
+function isPortrait() { return !!(window.matchMedia && matchMedia('(orientation: portrait)').matches); }
 function loop(now) {
   if (!race) return;
+  /* ტელეფონი ვერტიკალურადაა: რბოლა ჩერდება (საათიც), სანამ ჰორიზონტალურად არ შემობრუნდება */
+  if (race.state !== 'done' && isPortrait()) { race.t0 += now - lastT; lastT = now; requestAnimationFrame(loop); return; }
   var dt = Math.min(0.05, (now - lastT) / 1000), el = (now - race.t0) / 1000, target;
   lastT = now;
   if (race.state === 'done') return;
