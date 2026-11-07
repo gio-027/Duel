@@ -382,7 +382,7 @@ function show(id) { ['s-lobby', 's-wait', 's-game', 's-result', 's-garage'].forE
 function toastLobby(t) { var el = $('invite'); el.hidden = false; el.textContent = t; }
 function showWait() { show('s-wait'); $('codeBig').textContent = code; $('waitStake').textContent = 'ფსონი: ' + stake + ' ქულა · ' + SPEEDS[curSpeed].n; }
 function leaveToLobby(keep) {
-  stopRace(); closedByUs = true; if (ws && wsOpen && !keep) rawSend({ t: 'leave' }); clearSession(); mode = null; closedByUs = false; $('banner').hidden = true; show('s-lobby'); setPoints(points);
+  stopRace(); closedByUs = true; if (ws && wsOpen && !keep) rawSend({ t: 'leave' }); clearSession(); mode = null; closedByUs = false; $('banner').hidden = true; unlockFull(); show('s-lobby'); setPoints(points);
 }
 function shareURL() { return location.origin + location.pathname + '?room=' + code; }
 
@@ -567,6 +567,15 @@ function onOrient(e) {
   var sgn = (ang === 90) ? -1 : 1;                      /* მიმართულება: ორი ჰორიზონტალური პოზიციისთვის განსხვავებულია — შესამოწმებელია */
   tiltSteer = clamp(sgn * d / 25, -1, 1);
 }
+/* მობილურზე ორიენტაციის ჩაკეტვა მხოლოდ სრულ ეკრანზე მუშაობს; ეს უნდა გაეშვას მომხმარებლის შეხებით */
+function goFull() {
+  try {
+    var el = document.documentElement, p = el.requestFullscreen ? el.requestFullscreen() : null;
+    if (p && p.then) p.then(lockLand).catch(lockLand); else lockLand();
+  } catch (e) { lockLand(); }
+}
+function lockLand() { try { if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(function () {}); } catch (e) {} }
+function unlockFull() { try { if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(function () {}); if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch (e) {} }
 function enableTilt() {
   if (tiltListen) return; tiltListen = true;
   window.addEventListener('deviceorientation', onOrient);
@@ -610,9 +619,9 @@ $('sndBtn').classList.toggle('off', Snd.muted());
 /* ---------- ღილაკები ---------- */
 function cleanName(s) { return String(s || '').replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, 14) || 'მოთამაშე'; }
 function takeName() { myName = cleanName($('name').value); lsSet(NAME_KEY, myName); }
-$('createBtn').onclick = function () { enableTilt(); takeName(); Snd.unlock(); mode = 'online'; closedByUs = false; stake = parseInt($('stake').value, 10) || 1; curSpeed = parseInt($('speed').value, 10) || 1; sendMsg({ t: 'create', name: myName, stake: stake, speed: curSpeed }); };
-$('joinBtn').onclick = function () { enableTilt(); takeName(); Snd.unlock(); var c = $('code').value.trim(); if (!c) { toastLobby('ჩაწერე ოთახის კოდი.'); return; } mode = 'online'; closedByUs = false; sendMsg({ t: 'join', code: c, name: myName }); };
-$('botBtn').onclick = function () { enableTilt(); takeName(); Snd.unlock(); mode = 'bot'; role = 'a'; curSpeed = parseInt($('speed').value, 10) || 1; stake = Math.min(parseInt($('stake').value, 10) || 1, Math.max(1, points)); names = { a: myName, b: 'კომპიუტერი' }; beginRace((Math.random() * 2e9) | 0 || 1, 3200); };
+$('createBtn').onclick = function () { enableTilt(); goFull(); takeName(); Snd.unlock(); mode = 'online'; closedByUs = false; stake = parseInt($('stake').value, 10) || 1; curSpeed = parseInt($('speed').value, 10) || 1; sendMsg({ t: 'create', name: myName, stake: stake, speed: curSpeed }); };
+$('joinBtn').onclick = function () { enableTilt(); goFull(); takeName(); Snd.unlock(); var c = $('code').value.trim(); if (!c) { toastLobby('ჩაწერე ოთახის კოდი.'); return; } mode = 'online'; closedByUs = false; sendMsg({ t: 'join', code: c, name: myName }); };
+$('botBtn').onclick = function () { enableTilt(); goFull(); takeName(); Snd.unlock(); mode = 'bot'; role = 'a'; curSpeed = parseInt($('speed').value, 10) || 1; stake = Math.min(parseInt($('stake').value, 10) || 1, Math.max(1, points)); names = { a: myName, b: 'კომპიუტერი' }; beginRace((Math.random() * 2e9) | 0 || 1, 3200); };
 $('cancelBtn').onclick = function () { leaveToLobby(); };
 $('leaveBtn').onclick = function () { if (confirm('გასვლა?')) leaveToLobby(); };
 $('homeBtn').onclick = function () { leaveToLobby(); };
