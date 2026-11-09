@@ -396,6 +396,8 @@ function newOpp(x) { return { d: 0, rd: 0, x: x, rx: x, b: false, s: false, last
 function beginRace(seed, countdownMs) {
   stopRace(); setSpeed(curSpeed);
   track = genTrack(seed);
+  calib = (ctlMode === 'tilt' && calibOf() === undefined) ? { t: 0, sum: 0, n: 0, base: null } : null;
+  if (calib) flash('დახარე მარჯვენა მხარე ქვემოთ, რომ მანქანამ იცოდეს მიმართულება');
   me = new Car(-0.45);
   opp = newOpp(0.45);
   bot = (mode === 'bot') ? new Car(0.45) : null;
@@ -440,6 +442,7 @@ function loop(now) {
   var dt = Math.min(0.05, (now - lastT) / 1000), el = (now - race.t0) / 1000, target;
   lastT = now;
   if (race.state === 'done') return;
+  if (calib) calibTick(dt);
   if (race.state === 'count') {
     var left = (race.t0 - now) / 1000, n = Math.ceil(left);
     if (left <= 0) { race.state = 'run'; setBig('დაიწყო!', 'sm'); setTimeout(function () { if ($('big').textContent === 'დაიწყო!') $('big').textContent = ''; }, 700); Snd.beep(true); }
@@ -562,10 +565,12 @@ function onMotion(e) {
   if (!a || typeof a.x !== 'number' || typeof a.y !== 'number') return;
   var ang = ((screen.orientation ? screen.orientation.angle : window.orientation) || 0) * Math.PI / 180;
   var right = a.x * Math.cos(ang) + a.y * Math.sin(ang);
+  lastRight = right;
   if (tiltBase === null) tiltBase = right;
   var d = right - tiltBase;
   if (Math.abs(d) < 0.4) tiltBase += d * 0.01;          /* ნელი გასწორება */
-  tiltSteer = clamp(-d / (9.81 * 0.25) * sens, -1, 1);  /* მარჯვნივ დახრა → მარჯვნივ უხვევს */
+  var g = calibOf(); if (g === undefined) g = 1;
+  tiltSteer = clamp(g * -d / (9.81 * 0.25) * sens, -1, 1);  /* მარჯვნივ დახრა → მარჯვნივ უხვევს */
 }
 /* მობილურზე ორიენტაციის ჩაკეტვა მხოლოდ სრულ ეკრანზე მუშაობს; ეს უნდა გაეშვას მომხმარებლის შეხებით */
 function goFull() {
@@ -576,6 +581,23 @@ function goFull() {
 }
 function lockLand() { try { if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(function () {}); } catch (e) {} }
 function unlockFull() { try { if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(function () {}); if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch (e) {} }
+/* ორიენტაციის კალიბრაცია: თითო ჰორიზონტალურ პოზიციაზე ერთხელ ვამოწმებთ, რა მიმართულებით იქნება მარჯვნივ */
+var lastRight = 0, calib = null;
+function calibKey() { return String((screen.orientation ? screen.orientation.angle : window.orientation) || 0); }
+function calibOf() { var v = lsGet('duel-calib-' + calibKey()); return (v === null || v === undefined || v === '') ? undefined : parseFloat(v); }
+function calibTick(dt) {
+  if (ctlMode !== 'tilt') { calib = null; return; }
+  calib.t += dt;
+  if (calib.base === null) {
+    if (calib.t < 0.8) { calib.sum += lastRight; calib.n++; } else calib.base = calib.sum / Math.max(1, calib.n);
+    return;
+  }
+  var dd = lastRight - calib.base;
+  if (Math.abs(dd) > 1.2) { lsSet('duel-calib-' + calibKey(), String(dd < 0 ? 1 : -1)); calib = null; flash('მართვა მზადაა'); }
+}
+window.addEventListener('resize', function () {
+  if (race && ctlMode === 'tilt' && calibOf() === undefined) { calib = { t: 0, sum: 0, n: 0, base: null }; flash('დახარე მარჯვენა მხარე ქვემოთ, რომ მანქანამ იცოდეს მიმართულება'); }
+});
 function enableTilt() {
   if (tiltListen) return; tiltListen = true;
   window.addEventListener('devicemotion', onMotion);
