@@ -1,34 +1,36 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#1a1f4a"/>
-      <stop offset="1" stop-color="#04050c"/>
-    </linearGradient>
-    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#fff1b8"/>
-      <stop offset="1" stop-color="#e8a41a"/>
-    </linearGradient>
-    <linearGradient id="cyan" gradientUnits="userSpaceOnUse" x1="96" y1="0" x2="416" y2="0">
-      <stop offset="0" stop-color="#2ee6ff" stop-opacity="0"/>
-      <stop offset="0.6" stop-color="#2ee6ff"/>
-      <stop offset="1" stop-color="#b8f7ff"/>
-    </linearGradient>
-    <radialGradient id="halo" cx="0.5" cy="0.45" r="0.6">
-      <stop offset="0" stop-color="#2ee6ff" stop-opacity="0.22"/>
-      <stop offset="1" stop-color="#2ee6ff" stop-opacity="0"/>
+    <radialGradient id="bg" cx="0.5" cy="0.35" r="0.8">
+      <stop offset="0" stop-color="#2a0d12"/>
+      <stop offset="0.55" stop-color="#0c0810"/>
+      <stop offset="1" stop-color="#030305"/>
     </radialGradient>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FF7A4D"/><stop offset="0.5" stop-color="#E0202A"/><stop offset="1" stop-color="#6E0A12"/>
+    </linearGradient>
+    <linearGradient id="streak" gradientUnits="userSpaceOnUse" x1="30" y1="0" x2="170" y2="0">
+      <stop offset="0" stop-color="#FFB13B" stop-opacity="0"/>
+      <stop offset="1" stop-color="#FFE08A"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#FFE9A0"/><stop offset="1" stop-color="#E8A41A"/>
+    </linearGradient>
     <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
-      <feGaussianBlur stdDeviation="7" result="b"/>
+      <feGaussianBlur stdDeviation="5" result="b"/>
       <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
   </defs>
   <rect width="512" height="512" rx="116" fill="url(#bg)"/>
-  <circle cx="256" cy="256" r="210" fill="url(#halo)"/>
-  <rect x="10" y="10" width="492" height="492" rx="106" fill="none" stroke="#ffffff" stroke-opacity="0.08" stroke-width="4"/>
-  <g filter="url(#glow)">
-    <path d="M150 262 L256 168 L362 262 L334 290 L256 220 L178 290 Z" fill="url(#gold)"/>
-    <path d="M150 340 L256 246 L362 340 L334 368 L256 298 L178 368 Z" fill="url(#gold)" opacity="0.55"/>
-    <path d="M96 418 H416" stroke="url(#cyan)" stroke-width="12" stroke-linecap="round" fill="none"/>
-    <path d="M140 446 H372" stroke="url(#cyan)" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.6"/>
+  <rect x="10" y="10" width="492" height="492" rx="106" fill="none" stroke="#ffffff" stroke-opacity="0.07" stroke-width="4"/>
+  <!-- სიჩქარის ზოლები -->
+  <path d="M46 214 H150" stroke="url(#streak)" stroke-width="8" stroke-linecap="round"/>
+  <path d="M30 252 H170" stroke="url(#streak)" stroke-width="12" stroke-linecap="round" opacity="0.8"/>
+  <path d="M60 290 H140" stroke="url(#streak)" stroke-width="6" stroke-linecap="round" opacity="0.6"/>
+  <g filter="url(#glow)" transform="translate(39.7 162.9) scale(0.7)">
+    <path d="M52 170 L92 138 Q128 118 196 114 L246 94 Q282 84 326 92 L392 110 Q446 118 470 146 L548 152 Q566 156 566 172 L566 180 L52 180 Z" fill="url(#body)"/>
+    <path d="M236 98 Q284 88 326 96 L372 108 L300 112 Q262 114 230 112 Z" fill="#0b1628" opacity="0.9"/>
+    <path d="M96 150 L540 156" stroke="url(#gold)" stroke-width="4" opacity="0.9"/>
+    <circle cx="150" cy="182" r="26" fill="#111" stroke="#c9ced8" stroke-width="6"/>
+    <circle cx="460" cy="182" r="26" fill="#111" stroke="#c9ced8" stroke-width="6"/>
   </g>
 </svg>

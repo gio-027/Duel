@@ -106,3 +106,7 @@ details ul{margin:8px 0 0;padding-left:18px;color:var(--muted);display:flex;flex
 @media (orientation: portrait){.game .rot{display:flex!important}}
 
 .game .nitroTxt{position:absolute;left:50%;transform:translateX(-50%);top:max(14px,env(safe-area-inset-top));color:#7fe7ff;font-weight:900;font-size:16px;text-shadow:0 2px 4px #000;pointer-events:none}
+
+.sensrow{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.sensb{min-height:44px;border-radius:14px;border:2px solid #3A3F52;background:#12141C;color:#ECECF1;font:inherit;font-weight:700;font-size:14px;cursor:pointer;padding:6px}
+.sensb.on{border-color:var(--yellow);background:#2A2412;color:#FFD84A}

@@ -389,7 +389,7 @@ function shareURL() { return location.origin + location.pathname + '?room=' + co
 /* ---------- რბოლა ---------- */
 var race = null, me = null, opp = null, bot = null, track = null, raf = 0, lastT = 0, sendT = 0, shake = 0, cv = null, W = 0, H = 0, rendererOK = null;
 var ctl = { rev: false };
-var SENS_KEY = 'duel-sens', sens = parseFloat(lsGet(SENS_KEY)) || 1;
+var SENS_KEY = 'duel-sens', sens = parseFloat(lsGet(SENS_KEY)) || 1.5;
 var CTL_KEY = 'duel-ctl', ctlMode = lsGet(CTL_KEY) === 'wheel' ? 'wheel' : 'tilt', tiltSteer = 0, tiltBase = null, tiltListen = false, wheelAng = 0, wheelId = null, wheelLast = 0, hitCD = 0;
 var keysSteer = { l: 0, r: 0 }, touchSteer = 0, touchId = null, touchX0 = 0;
 function newOpp(x) { return { d: 0, rd: 0, x: x, rx: x, b: false, s: false, lastRd: 0, vEst: 0 }; }
@@ -579,7 +579,7 @@ function goFull() {
     if (p && p.then) p.then(lockLand).catch(lockLand); else lockLand();
   } catch (e) { lockLand(); }
 }
-function lockLand() { try { if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(function () {}); } catch (e) {} }
+function lockLand() { try { if (screen.orientation && screen.orientation.lock) { var t = screen.orientation.type || ''; screen.orientation.lock(t.indexOf('landscape') === 0 ? t : 'landscape-primary').catch(function () {}); } } catch (e) {} }
 function unlockFull() { try { if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(function () {}); if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch (e) {} }
 /* ორიენტაციის კალიბრაცია: თითო ჰორიზონტალურ პოზიციაზე ერთხელ ვამოწმებთ, რა მიმართულებით იქნება მარჯვნივ */
 var lastRight = 0, calib = null;
