@@ -561,16 +561,16 @@ wheelEl.addEventListener('pointermove', function (e) {
 /* მართვა ტელეფონის დახრით */
 /* დახრა: აჩქარების სენსორი (სიმძიმის ძალა) ეკრანის ჰორიზონტალურ ღერძზე დაპროექტებული — ორივე ჰორიზონტალურ პოზიციაზე ერთნაირად მუშაობს */
 function onMotion(e) {
-  var a = e.accelerationIncludingGravity;
-  if (!a || typeof a.x !== 'number' || typeof a.y !== 'number') return;
-  var ang = ((screen.orientation ? screen.orientation.angle : window.orientation) || 0) * Math.PI / 180;
-  var right = a.x * Math.cos(ang) + a.y * Math.sin(ang);
-  lastRight = right;
-  if (tiltBase === null) tiltBase = right;
-  var d = right - tiltBase;
-  if (Math.abs(d) < 0.4) tiltBase += d * 0.01;          /* ნელი გასწორება */
+  /* საწყისი ვერსიის დახრის ღერძი: ჰორიზონტალურად beta, ვერტიკალურად gamma */
+  var ang = (screen.orientation ? screen.orientation.angle : window.orientation) || 0;
+  var v = Math.abs(ang) === 90 ? e.beta : e.gamma;
+  if (typeof v !== 'number') return;
+  lastRight = v;
+  if (tiltBase === null) tiltBase = v;
+  var d = v - tiltBase;
+  if (Math.abs(d) < 3) tiltBase += d * 0.01;
   var g = calibOf(); if (g === undefined) g = 1;
-  tiltSteer = clamp(g * -d / (9.81 * 0.25) * sens, -1, 1);  /* მარჯვნივ დახრა → მარჯვნივ უხვევს */
+  tiltSteer = clamp(g * d / 20 * sens, -1, 1);
 }
 /* მობილურზე ორიენტაციის ჩაკეტვა მხოლოდ სრულ ეკრანზე მუშაობს; ეს უნდა გაეშვას მომხმარებლის შეხებით */
 function goFull() {
@@ -593,15 +593,15 @@ function calibTick(dt) {
     return;
   }
   var dd = lastRight - calib.base;
-  if (Math.abs(dd) > 1.2) { lsSet('duel-calib-' + calibKey(), String(dd < 0 ? 1 : -1)); calib = null; flash('მართვა მზადაა'); }
+  if (Math.abs(dd) > 6) { lsSet('duel-calib-' + calibKey(), String(dd > 0 ? 1 : -1)); calib = null; flash('მართვა მზადაა'); }
 }
 window.addEventListener('resize', function () {
   if (race && ctlMode === 'tilt' && calibOf() === undefined) { calib = { t: 0, sum: 0, n: 0, base: null }; flash('დახარე მარჯვენა მხარე ქვემოთ, რომ მანქანამ იცოდეს მიმართულება'); }
 });
 function enableTilt() {
   if (tiltListen) return; tiltListen = true;
-  window.addEventListener('devicemotion', onMotion);
-  try { if (window.DeviceMotionEvent && typeof DeviceMotionEvent.requestPermission === 'function') DeviceMotionEvent.requestPermission().catch(function () {}); } catch (e) {}
+  window.addEventListener('deviceorientation', onMotion);
+  try { if (window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === 'function') DeviceOrientationEvent.requestPermission().catch(function () {}); } catch (e) {}
 }
 
 /* მანქანების შეჯახება ერთმანეთთან: სიჩქარე იკარგება */
