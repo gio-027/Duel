@@ -476,6 +476,7 @@ function loop(now) {
     $('pOpp').style.left = clamp(opp.rd / LEN, 0, 1) * 100 + '%';
     $('revBtn').classList.toggle('on', ctl.rev);
     $('nitroTxt').textContent = me.boostT > 0 ? 'ნიტრო ' + me.boostT.toFixed(1) + ' წმ' : '';
+    if (ctlMode === 'tilt') $('dbg').textContent = 'სენსორი ' + lastRight.toFixed(1) + ' | ნეიტრალი ' + (tiltBase === null ? '-' : tiltBase.toFixed(1)) + ' | მოხვევა ' + tiltSteer.toFixed(2) + ' | კალიბრაცია ' + String(calibOf());
     Snd.engine(me.v / 10, me.bk > 0.3);
     Snd.music(Math.min(1, 0.5 + 0.25 * clamp(me.d / LEN, 0, 1) + 0.25 * me.bk + (Math.abs(gap) < 0.8 ? 0.1 : 0)));
     if (mode === 'online') {

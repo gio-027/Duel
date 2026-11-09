@@ -110,3 +110,5 @@ details ul{margin:8px 0 0;padding-left:18px;color:var(--muted);display:flex;flex
 .sensrow{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
 .sensb{min-height:44px;border-radius:14px;border:2px solid #3A3F52;background:#12141C;color:#ECECF1;font:inherit;font-weight:700;font-size:14px;cursor:pointer;padding:6px}
 .sensb.on{border-color:var(--yellow);background:#2A2412;color:#FFD84A}
+
+.game .dbg{position:absolute;left:10px;bottom:6px;font:12px monospace;color:#9fe;opacity:.85;pointer-events:none;text-shadow:0 1px 2px #000}
