@@ -179,6 +179,6 @@ setInterval(() => {
     if (allGone || oneGone || now - room.born > 6 * 3600 * 1000) closeRoom(room, true);
   }
 }, 30000).unref();
-server.listen(PORT, () => console.log('Duel listening on port ' + PORT));
+server.listen(PORT, () => console.log('GB listening on port ' + PORT));
 function shutdown() { wss.close(); server.close(() => process.exit(0)); setTimeout(() => process.exit(0), 2000).unref(); }
 process.on('SIGTERM', shutdown); process.on('SIGINT', shutdown);

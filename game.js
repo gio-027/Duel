@@ -389,6 +389,7 @@ function shareURL() { return location.origin + location.pathname + '?room=' + co
 /* ---------- რბოლა ---------- */
 var race = null, me = null, opp = null, bot = null, track = null, raf = 0, lastT = 0, sendT = 0, shake = 0, cv = null, W = 0, H = 0, rendererOK = null;
 var ctl = { rev: false };
+var SENS_KEY = 'duel-sens', sens = parseFloat(lsGet(SENS_KEY)) || 1;
 var CTL_KEY = 'duel-ctl', ctlMode = lsGet(CTL_KEY) === 'wheel' ? 'wheel' : 'tilt', tiltSteer = 0, tiltBase = null, tiltListen = false, wheelAng = 0, wheelId = null, wheelLast = 0, hitCD = 0;
 var keysSteer = { l: 0, r: 0 }, touchSteer = 0, touchId = null, touchX0 = 0;
 function newOpp(x) { return { d: 0, rd: 0, x: x, rx: x, b: false, s: false, lastRd: 0, vEst: 0 }; }
@@ -446,7 +447,7 @@ function loop(now) {
     else if (n > 3 && n !== race.lastBeep) { race.lastBeep = n; $('big').className = 'big sm'; $('big').textContent = track.theme.n; }
   }
   if (race.state === 'run') {
-    if (ctlMode === 'wheel' && wheelId === null) { wheelAng *= Math.exp(-dt * 5); touchSteer = clamp(wheelAng / (Math.PI * 0.5), -1, 1); $('wheel').style.transform = 'rotate(' + wheelAng + 'rad)'; }
+    if (ctlMode === 'wheel' && wheelId === null) { wheelAng *= Math.exp(-dt * 5); touchSteer = clamp(wheelAng / (Math.PI * 0.25) * sens, -1, 1); $('wheel').style.transform = 'rotate(' + wheelAng + 'rad)'; }
     target = clamp(keysSteer.r - keysSteer.l + (ctlMode === 'wheel' ? touchSteer : tiltSteer), -1, 1);
     me.steer += (target - me.steer) * Math.min(1, dt * 10);
     me.gas = true; me.rev = ctl.rev; me.nitro = false;
@@ -549,23 +550,22 @@ wheelEl.addEventListener('pointermove', function (e) {
   var c = wc(), a = Math.atan2(e.clientY - c.y, e.clientX - c.x), d = a - wheelLast;
   if (d > Math.PI) d -= 2 * Math.PI; if (d < -Math.PI) d += 2 * Math.PI;
   wheelLast = a; wheelAng = clamp(wheelAng + d, -Math.PI * 0.8, Math.PI * 0.8);
-  touchSteer = clamp(wheelAng / (Math.PI * 0.5), -1, 1);
+  touchSteer = clamp(wheelAng / (Math.PI * 0.25) * sens, -1, 1);
   wheelEl.style.transform = 'rotate(' + wheelAng + 'rad)';
 });
 ['pointerup', 'pointercancel'].forEach(function (ev) { wheelEl.addEventListener(ev, function (e) { if (wheelId === e.pointerId) wheelId = null; }); });
 
 /* მართვა ტელეფონის დახრით */
-function onOrient(e) {
-  /* ჰორიზონტალურად (თამაშის ფორმატი): მობილურის მარცხენა-მარჯვენა დახრა (beta). ვერტიკალურად: gamma */
-  var ang = (screen.orientation ? screen.orientation.angle : window.orientation) || 0;
-  var land = Math.abs(ang) === 90;
-  var v = land ? e.beta : e.gamma;
-  if (typeof v !== 'number') return;
-  if (tiltBase === null) tiltBase = v;
-  var d = v - tiltBase;
-  if (Math.abs(d) < 6) tiltBase += d * 0.01;            /* ნელი გასწორება */
-  var sgn = (ang === 90) ? -1 : 1;                      /* მიმართულება: ორი ჰორიზონტალური პოზიციისთვის განსხვავებულია — შესამოწმებელია */
-  tiltSteer = clamp(sgn * d / 25, -1, 1);
+/* დახრა: აჩქარების სენსორი (სიმძიმის ძალა) ეკრანის ჰორიზონტალურ ღერძზე დაპროექტებული — ორივე ჰორიზონტალურ პოზიციაზე ერთნაირად მუშაობს */
+function onMotion(e) {
+  var a = e.accelerationIncludingGravity;
+  if (!a || typeof a.x !== 'number' || typeof a.y !== 'number') return;
+  var ang = ((screen.orientation ? screen.orientation.angle : window.orientation) || 0) * Math.PI / 180;
+  var right = a.x * Math.cos(ang) + a.y * Math.sin(ang);
+  if (tiltBase === null) tiltBase = right;
+  var d = right - tiltBase;
+  if (Math.abs(d) < 0.4) tiltBase += d * 0.01;          /* ნელი გასწორება */
+  tiltSteer = clamp(-d / (9.81 * 0.25) * sens, -1, 1);  /* მარჯვნივ დახრა → მარჯვნივ უხვევს */
 }
 /* მობილურზე ორიენტაციის ჩაკეტვა მხოლოდ სრულ ეკრანზე მუშაობს; ეს უნდა გაეშვას მომხმარებლის შეხებით */
 function goFull() {
@@ -578,8 +578,8 @@ function lockLand() { try { if (screen.orientation && screen.orientation.lock) s
 function unlockFull() { try { if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(function () {}); if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch (e) {} }
 function enableTilt() {
   if (tiltListen) return; tiltListen = true;
-  window.addEventListener('deviceorientation', onOrient);
-  try { if (window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === 'function') DeviceOrientationEvent.requestPermission().catch(function () {}); } catch (e) {}
+  window.addEventListener('devicemotion', onMotion);
+  try { if (window.DeviceMotionEvent && typeof DeviceMotionEvent.requestPermission === 'function') DeviceMotionEvent.requestPermission().catch(function () {}); } catch (e) {}
 }
 
 /* მანქანების შეჯახება ერთმანეთთან: სიჩქარე იკარგება */
@@ -596,6 +596,9 @@ function carCollide(dt) {
     flash('შეჯახება!');
   }
 }
+function markSens() { document.querySelectorAll('.sensb').forEach(function (b) { b.classList.toggle('on', parseFloat(b.dataset.sens) === sens); }); }
+document.querySelectorAll('.sensb').forEach(function (b) { b.onclick = function () { sens = parseFloat(b.dataset.sens) || 1; lsSet(SENS_KEY, String(sens)); markSens(); }; });
+markSens();
 document.querySelectorAll('.segb').forEach(function (b) { b.onclick = function () { ctlMode = b.dataset.ctl; lsSet(CTL_KEY, ctlMode); markCtl(); }; });
 function markCtl() { document.querySelectorAll('.segb').forEach(function (b) { b.classList.toggle('on', b.dataset.ctl === ctlMode); }); }
 markCtl();
@@ -627,7 +630,7 @@ $('leaveBtn').onclick = function () { if (confirm('გასვლა?')) leaveT
 $('homeBtn').onclick = function () { leaveToLobby(); };
 $('copyBtn').onclick = function () {
   var url = shareURL();
-  if (navigator.share) navigator.share({ title: 'დუელი', text: 'შემოდი ოთახში ' + code, url: url }).catch(function () {});
+  if (navigator.share) navigator.share({ title: 'გბ', text: 'შემოდი ოთახში ' + code, url: url }).catch(function () {});
   else if (navigator.clipboard) navigator.clipboard.writeText(url).then(function () { $('copyBtn').textContent = 'ბმული დაკოპირდა'; });
 };
 $('againBtn').onclick = function () {

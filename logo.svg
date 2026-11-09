@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 240" role="img" aria-label="დუელი">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 240" role="img" aria-label="გბ">
   <defs>
     <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#FF5A3C"/><stop offset="0.5" stop-color="#D2121C"/><stop offset="1" stop-color="#6E0A12"/>
@@ -13,5 +13,5 @@
   <path d="M96 150 L540 156" stroke="#FFD84A" stroke-width="3" opacity="0.8"/>
   <circle cx="150" cy="182" r="26" fill="#111" stroke="#c9ced8" stroke-width="6"/>
   <circle cx="460" cy="182" r="26" fill="#111" stroke="#c9ced8" stroke-width="6"/>
-  <text x="300" y="82" text-anchor="middle" font-family="'Noto Sans Georgian', sans-serif" font-weight="900" font-size="86" fill="url(#gold)" stroke="#1a1200" stroke-width="4" paint-order="stroke">დუელი</text>
+  <text x="300" y="82" text-anchor="middle" font-family="'Noto Sans Georgian', sans-serif" font-weight="900" font-size="86" fill="url(#gold)" stroke="#1a1200" stroke-width="4" paint-order="stroke">გბ</text>
 </svg>
