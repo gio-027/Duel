@@ -390,6 +390,7 @@ function shareURL() { return location.origin + location.pathname + '?room=' + co
 var race = null, me = null, opp = null, bot = null, track = null, raf = 0, lastT = 0, sendT = 0, shake = 0, cv = null, W = 0, H = 0, rendererOK = null;
 var ctl = { rev: false };
 var SENS_KEY = 'duel-sens', sens = parseFloat(lsGet(SENS_KEY)) || 1.5;
+var INV_KEY = 'duel-inv', inv = parseFloat(lsGet(INV_KEY)) || 1;
 var CTL_KEY = 'duel-ctl', ctlMode = lsGet(CTL_KEY) === 'wheel' ? 'wheel' : 'tilt', tiltSteer = 0, tiltBase = null, tiltListen = false, wheelAng = 0, wheelId = null, wheelLast = 0, hitCD = 0;
 var keysSteer = { l: 0, r: 0 }, touchSteer = 0, touchId = null, touchX0 = 0;
 function newOpp(x) { return { d: 0, rd: 0, x: x, rx: x, b: false, s: false, lastRd: 0, vEst: 0 }; }
@@ -571,7 +572,7 @@ function onMotion(e) {
   var d = v - tiltBase;
   if (Math.abs(d) < 3) tiltBase += d * 0.01;
   var g = calibOf(); if (g === undefined) g = 1;
-  tiltSteer = clamp(g * d / 20 * sens, -1, 1);
+  tiltSteer = clamp(inv * g * d / 20 * sens, -1, 1);
 }
 /* მობილურზე ორიენტაციის ჩაკეტვა მხოლოდ სრულ ეკრანზე მუშაობს; ეს უნდა გაეშვას მომხმარებლის შეხებით */
 function goFull() {
@@ -619,6 +620,9 @@ function carCollide(dt) {
     flash('შეჯახება!');
   }
 }
+function markInv() { document.querySelectorAll('.invb').forEach(function (b) { b.classList.toggle('on', parseFloat(b.dataset.inv) === inv); }); }
+document.querySelectorAll('.invb').forEach(function (b) { b.onclick = function () { inv = parseFloat(b.dataset.inv) || 1; lsSet(INV_KEY, String(inv)); markInv(); }; });
+markInv();
 function markSens() { document.querySelectorAll('.sensb').forEach(function (b) { b.classList.toggle('on', parseFloat(b.dataset.sens) === sens); }); }
 document.querySelectorAll('.sensb').forEach(function (b) { b.onclick = function () { sens = parseFloat(b.dataset.sens) || 1; lsSet(SENS_KEY, String(sens)); markSens(); }; });
 markSens();
